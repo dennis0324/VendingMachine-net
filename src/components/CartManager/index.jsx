@@ -1,11 +1,13 @@
-import ItemSelItem from "./ItemSelItem";
 import { useContext, useMemo, useState } from "react";
+import ItemSelItem from "./ItemSelItem";
 import Popup from "../Popup";
 import ConfirmPurchase from "./ConfirmPurchase";
 import SelectCompo from "../SelectCompo";
-import { VendingMContext } from "../../App";
 import IconHelper from "../IconHelper";
+
+import { VendingMContext } from "../../App";
 import { ReactComponent as Cart } from "../../icons/cart.svg";
+import { ReactComponent as Clear } from "../../icons/clear.svg";
 
 function CartManager(props) {
   const { total, cartData, clearCart } = useContext(VendingMContext);
@@ -29,7 +31,7 @@ function CartManager(props) {
   function hideCart() {
     setCartOpen(false);
   }
-  function List({ className = "" }) {
+  function List({ className = "", onRight, right }) {
     const predefinedClass = "flex flex-row h-fit m-2";
     const combineclass = [className, predefinedClass].join(" ");
 
@@ -44,7 +46,7 @@ function CartManager(props) {
           <span className="flex-1 flex items-center">총 결제 금액</span>
           <span className="flex items-center">{total}원</span>
         </section>
-        <SelectCompo onLeft={onPopup} right={"비우기"} onRight={clearCart} />
+        <SelectCompo onLeft={onPopup} right={right} onRight={onRight} />
       </>
     );
   }
@@ -55,15 +57,23 @@ function CartManager(props) {
         <Popup isOpen={isOpen} setIsOpen={setIsOpen}>
           <ConfirmPurchase onRight={offPopup} />
         </Popup>
-        <List />
+        <List onRight={clearCart} right={"비우기"} />
       </container>
       <container className="max-sm:flex hidden h-12 bg-gray-100 flex-row w-full pl-3">
         <Popup isOpen={cartOpen} setIsOpen={hideCart}>
-          <List />
+          <List onRight={hideCart} right={"닫기"} />
         </Popup>
         <div className="flex flex-row flex-1">
           <span className="flex-1 flex items-center">총 결제 금액</span>
           <span className="flex items-center">{total}원</span>
+        </div>
+        <div className="h-12 w-12 flex justify-center items-center">
+          <IconHelper
+            className="m-0 flex justify-center items-center"
+            onClick={clearCart}
+          >
+            <Clear />
+          </IconHelper>
         </div>
         <div className="h-12 w-12 flex justify-center items-center">
           <IconHelper
