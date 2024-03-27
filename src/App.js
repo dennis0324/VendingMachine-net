@@ -1,6 +1,6 @@
 import "./App.css";
 import "./styles/tailwind.css";
-import { useState } from "react";
+import { useState, useMemo, createContext } from "react";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -38,31 +38,81 @@ const testData = [
     qty: 10,
   },
 ];
-
-const testCartData = [
-  {
-    name: "물",
-    qty: 1,
-  },
-  {
-    name: "커피",
-    qty: 3,
-  },
-];
-
+export const VendingMContext = createContext();
 function App() {
-  const [data, setData] = useState(testData);
-  const [cartData, setCartData] = useState(testCartData);
+  const [displayData, setDisplayData] = useState(testData);
+  const [cartData, setCartData] = useState([]);
+  const [sellData, setSellData] = useState([]);
+
+  /////////////////////////////////////////////////////////////////////////////
+  ///////// 메소드 선언
+  /////////////////////////////////////////////////////////////////////////////
+
+  // compute 총액
+  const total = useMemo(() => {
+    const total = cartData.reduce((acc, cur) => {
+      acc += cur.price * cur.qty;
+      return acc;
+    }, 0);
+
+    return total;
+  }, [cartData]);
+
+  // 카트에 상품 추가
+  function addToCart(item, count = 1) {
+    const find_item = cartData.findIndex(
+      (cartItem) => cartItem.name === item.name,
+    );
+    if (cartData[find_item]?.qty >= item.qty) return "재고가 부족합니다.";
+    if (7000 < item.price * count + total)
+      return "7000원 이상 구매 불가능합니다.";
+
+    if (find_item >= 0) {
+      cartData[find_item].qty += count;
+      setCartData([...cartData]);
+      return false;
+    }
+
+    const cartProduct = { ...item, qty: count };
+    setCartData([...cartData, cartProduct]);
+    return false;
+  }
+  // 카트에서 특정 상품 삭제
+  function removeFromCart(itemName) {
+    const filteredData = cartData.filter((e) => e.name !== itemName);
+    setCartData(filteredData);
+  }
+  // 카트 비우기
+  function clearCart() {
+    setCartData([]);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////
+
+  const vendingMProvideData = useMemo(() => ({
+    displayData,
+    cartData,
+    sellData,
+    total,
+    addToCart,
+    removeFromCart,
+    clearCart,
+  }));
+
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={<Home data={data} cartData={cartData} />}
-        ></Route>
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
-    </Router>
+    <VendingMContext.Provider value={vendingMProvideData}>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home onSelect={addToCart} onClear={clearCart} total={total} />
+            }
+          ></Route>
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
+      </Router>
+    </VendingMContext.Provider>
   );
 }
 

@@ -1,20 +1,33 @@
+import Popup from "../Popup";
+import ConfirmCount from "./ConfirmCount";
+import { useState } from "react";
+
 function MenuItem({ item }) {
-  function onClickBuy() {
-    alert(`${item.name} 해줘 `);
+  const [isOpen, setIsOpen] = useState(false);
+  function popupOff() {
+    setIsOpen(false);
+  }
+  function popupOn() {
+    setIsOpen(true);
   }
   return (
-    <div className="items h-fit flex flex-col justify-center items-center bg-gray-100 rounded-lg p-3">
-      <span className="lg:text-2xl mb-3">
-        {item.name}({item.qty})
-      </span>
-      <span className="lg:text-2xl mb-3">{item.price}원</span>
-      <p
-        className="lg:text-2xl text-nowrap bg-gray-400 rounded-lg p-5 mb-5"
-        onClick={(e) => onClickBuy(e)}
-      >
-        구매하기
-      </p>
-    </div>
+    <>
+      <Popup isOpen={isOpen} setIsOpen={setIsOpen}>
+        <ConfirmCount onPopupCancel={popupOff} item={item} />
+      </Popup>
+      <div className="items h-fit flex flex-col justify-center items-center bg-gray-100 rounded-lg p-3">
+        <span className="lg:text-2xl mb-3">
+          {item.name}({item.qty})
+        </span>
+        <span className="lg:text-2xl mb-3">{item.price}원</span>
+        <p
+          className="lg:text-2xl text-nowrap bg-gray-400 rounded-lg px-3 py-1 mb-5 cursor-pointer"
+          onClick={popupOn}
+        >
+          담기
+        </p>
+      </div>
+    </>
   );
 }
 
