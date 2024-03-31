@@ -1,48 +1,54 @@
 import "./App.css";
 import "./styles/tailwind.css";
-import { useState, useMemo, createContext } from "react";
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import {createContext, useMemo, useState} from "react";
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+
 import Admin from "./pages/Admin";
-// water 450, coffee 500, energydrink 550, premiumcoffee 700, coke 750, specialdrink 800
+import Home from "./pages/Home";
+
+// water 450, coffee 500, energydrink 550, premiumcoffee 700, coke 750,
+// specialdrink 800
 const testData = [
   {
-    name: "물",
-    price: 450,
-    qty: 10,
+    name : "물",
+    price : 450,
+    qty : 10,
   },
   {
-    name: "커피",
-    price: 500,
-    qty: 10,
+    name : "커피",
+    price : 500,
+    qty : 10,
   },
   {
-    name: "이온 음료",
-    price: 550,
-    qty: 10,
+    name : "이온 음료",
+    price : 550,
+    qty : 10,
   },
   {
-    name: "고급 커피",
-    price: 700,
-    qty: 10,
+    name : "고급 커피",
+    price : 700,
+    qty : 10,
   },
   {
-    name: "탄산 음료",
-    price: 750,
-    qty: 10,
+    name : "탄산 음료",
+    price : 750,
+    qty : 10,
   },
   {
-    name: "특화 음료",
-    price: 800,
-    qty: 10,
+    name : "특화 음료",
+    price : 800,
+    qty : 10,
   },
 ];
 export const VendingMContext = createContext();
+export const PopupContext = createContext();
 function App() {
   const [displayData, setDisplayData] = useState(testData);
   const [cartData, setCartData] = useState([]);
   const [sellData, setSellData] = useState([]);
+
+  const [popupData, setPopupData] = useState([]);
 
   /////////////////////////////////////////////////////////////////////////////
   ///////// 메소드 선언
@@ -56,25 +62,26 @@ function App() {
     }, 0);
 
     return total;
-  }, [cartData]);
+  }, [ cartData ]);
 
   // 카트에 상품 추가
   function addToCart(item, count = 1) {
     const find_item = cartData.findIndex(
-      (cartItem) => cartItem.name === item.name,
+        (cartItem) => cartItem.name === item.name,
     );
-    if (cartData[find_item]?.qty >= item.qty) return "재고가 부족합니다.";
+    if (cartData[find_item]?.qty >= item.qty)
+      return "재고가 부족합니다.";
     if (7000 < item.price * count + total)
       return "7000원 이상 구매 불가능합니다.";
 
     if (find_item >= 0) {
       cartData[find_item].qty += count;
-      setCartData([...cartData]);
+      setCartData([...cartData ]);
       return false;
     }
 
-    const cartProduct = { ...item, qty: count };
-    setCartData([...cartData, cartProduct]);
+    const cartProduct = {...item, qty : count};
+    setCartData([...cartData, cartProduct ]);
     return false;
   }
   // 카트에서 특정 상품 삭제
@@ -83,37 +90,44 @@ function App() {
     setCartData(filteredData);
   }
   // 카트 비우기
-  function clearCart() {
-    setCartData([]);
-  }
+  function clearCart() { setCartData([]); }
+
+  /////////////////////////////////////////////////////////////////////////////
+  ///////// popup 관련 메소드
+
+  function addPopup(component) { setCartData([...popupData, component ]); }
 
   ///////////////////////////////////////////////////////////////////////////////
 
   const vendingMProvideData = useMemo(() => ({
-    displayData,
-    cartData,
-    sellData,
-    total,
-    addToCart,
-    removeFromCart,
-    clearCart,
-  }));
+                                        displayData,
+                                        cartData,
+                                        sellData,
+                                        total,
+                                        addToCart,
+                                        removeFromCart,
+                                        clearCart,
+                                      }));
+  const popupProvideData = useMemo(() => ({addPopup, popupData}));
 
   return (
     <VendingMContext.Provider value={vendingMProvideData}>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Home onSelect={addToCart} onClear={clearCart} total={total} />
-            }
-          ></Route>
-          <Route path="/admin" element={<Admin />} />
-        </Routes>
-      </Router>
+      <PopupContext.Provider value={popupProvideData}>
+        <PopupManager />
+        <Router>
+          <Routes>
+            <Route
+  path = "/"
+  element = {
+                <Home onSelect={addToCart} onClear={clearCart} total={total} />
+              }
+            ></Route>
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+        </Router>
+      </PopupContext.Provider>
     </VendingMContext.Provider>
   );
-}
+  }
 
-export default App;
+  export default App;

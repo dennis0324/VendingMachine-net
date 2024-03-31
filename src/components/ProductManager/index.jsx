@@ -1,13 +1,15 @@
 import ProductItem from "./ProductItem";
+import { useContext } from "react";
+import { VendingMContext } from "../../App.js";
 
-function ProductManager(props) {
-  const { data, className } = props;
+function ProductManager({ className }) {
   const predefinedClass = "";
-  const combineClass = [className].join(" ");
+  const combineClass = [className, predefinedClass].join(" ");
+  const { cartData } = useContext(VendingMContext);
 
   return (
     <conatiner className={combineClass}>
-      {data.map((item) => (
+      {cartData.map((item) => (
         <ProductItem product={item} />
       ))}
     </conatiner>

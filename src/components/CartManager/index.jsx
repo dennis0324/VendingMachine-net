@@ -8,11 +8,14 @@ import IconHelper from "../IconHelper";
 import { VendingMContext } from "../../App";
 import { ReactComponent as Cart } from "../../icons/cart.svg";
 import { ReactComponent as Clear } from "../../icons/clear.svg";
+import ButtonCompo from "../ButtonCompo";
+import MoneySeletor from "./MoneySeletor";
 
 function CartManager(props) {
   const { total, cartData, clearCart } = useContext(VendingMContext);
   const { className } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const [isMoneyOpen, setIsMoneyOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const preClassName =
     "max-sm:hidden bg-gray-100 rounded-lg min-w-36 h-full w-full m-3 flex flex-col";
@@ -31,6 +34,14 @@ function CartManager(props) {
   function hideCart() {
     setCartOpen(false);
   }
+
+  function showMoney() {
+    setIsMoneyOpen(true);
+  }
+
+  function hideMoney() {
+    setIsMoneyOpen(false);
+  }
   function List({ className = "", onRight, right }) {
     const predefinedClass = "flex flex-row h-fit m-2";
     const combineclass = [className, predefinedClass].join(" ");
@@ -47,16 +58,20 @@ function CartManager(props) {
           <span className="flex items-center">{total}원</span>
         </section>
         <SelectCompo onLeft={onPopup} right={right} onRight={onRight} />
+        <ButtonCompo message="돈 투입하기" onClick={showMoney} />
       </>
     );
   }
 
   return (
     <>
+      <Popup isOpen={isOpen} setIsOpen={setIsOpen}>
+        <ConfirmPurchase onRight={offPopup} />
+      </Popup>
+      <Popup isOpen={isMoneyOpen} setIsOpen={setIsMoneyOpen}>
+        <MoneySeletor onRight={hideMoney} />
+      </Popup>
       <container className={combineClass}>
-        <Popup isOpen={isOpen} setIsOpen={setIsOpen}>
-          <ConfirmPurchase onRight={offPopup} />
-        </Popup>
         <List onRight={clearCart} right={"비우기"} />
       </container>
       <container className="max-sm:flex hidden h-12 bg-gray-100 flex-row w-full pl-3">
