@@ -1,20 +1,12 @@
-import Popup from "../Popup";
 import ConfirmCount from "./ConfirmCount";
-import { useState } from "react";
+import { addPopup, removePopup } from "../PopupManager";
 
 function MenuItem({ item }) {
-  const [isOpen, setIsOpen] = useState(false);
-  function popupOff() {
-    setIsOpen(false);
-  }
   function popupOn() {
-    setIsOpen(true);
+    addPopup(<ConfirmCount onPopupCancel={removePopup} item={item} />);
   }
   return (
     <>
-      <Popup isOpen={isOpen} setIsOpen={setIsOpen}>
-        <ConfirmCount onPopupCancel={popupOff} item={item} />
-      </Popup>
       <div className="items h-fit flex flex-col justify-center items-center bg-gray-100 rounded-lg p-3">
         <span className="lg:text-2xl mb-3">
           {item.name}({item.qty})
