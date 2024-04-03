@@ -1,3 +1,4 @@
+import * as React from "react";
 import { removePopup } from "./PopupManager";
 function Popup({ children }) {
   return (
