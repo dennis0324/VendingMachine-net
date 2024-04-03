@@ -1,3 +1,4 @@
+import * as React from "react";
 function IconHelper(props) {
   const { children } = props;
   return (

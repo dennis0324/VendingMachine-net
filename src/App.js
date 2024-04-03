@@ -1,8 +1,9 @@
+import * as React from "react";
 import "./App.css";
 import "./styles/tailwind.css";
 
 import { createContext, useMemo, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 
 import Admin from "./pages/Admin";
 import Home from "./pages/Home";

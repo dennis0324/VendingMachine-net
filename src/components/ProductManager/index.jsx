@@ -8,11 +8,11 @@ function ProductManager({ className }) {
   const { cartData } = useContext(VendingMContext);
 
   return (
-    <conatiner className={combineClass}>
+    <section className={combineClass}>
       {cartData.map((item) => (
         <ProductItem product={item} />
       ))}
-    </conatiner>
+    </section>
   );
 }
 

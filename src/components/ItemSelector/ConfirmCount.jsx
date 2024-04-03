@@ -1,7 +1,8 @@
+import * as React from "react";
 import SelectCompo from "../SelectCompo";
 import IconHelper from "../IconHelper";
-import { ReactComponent as Add } from "../../icons/add.svg";
-import { ReactComponent as Remove } from "../../icons/remove.svg";
+import Add from "../../icons/add.svg";
+import Remove from "../../icons/remove.svg";
 
 import { useState, useContext } from "react";
 import { VendingMContext } from "../../App";

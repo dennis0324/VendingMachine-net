@@ -1,5 +1,5 @@
 import IconHelper from "../IconHelper";
-import { ReactComponent as Delete } from "../../icons/delete.svg";
+import Delete from "../../icons/delete.svg";
 import { useContext } from "react";
 import { VendingMContext } from "../../App";
 function ItemSelItem({ item, qty, onDelete }) {

@@ -1,3 +1,4 @@
+import * as React from "react";
 function ButtonCompo({ onClick = () => {}, message = "확인" }) {
   return (
     <section className="grid grid-cols-1 gap-2 text-nowrap m-2">

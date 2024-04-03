@@ -1,3 +1,4 @@
+import * as React from "react";
 import ConfirmCount from "./ConfirmCount";
 import { addPopup, removePopup } from "../PopupManager";
 

@@ -1,9 +1,10 @@
+import * as React from "react";
 import { useContext } from "react";
 import IconHelper from "../IconHelper";
 
 import { VendingMContext } from "../../App";
-import { ReactComponent as Cart } from "../../icons/cart.svg";
-import { ReactComponent as Clear } from "../../icons/clear.svg";
+import Cart from "../../icons/cart.svg";
+import Clear from "../../icons/clear.svg";
 import { addPopup, removePopup } from "../PopupManager";
 import CartList from "./CartList";
 

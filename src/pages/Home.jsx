@@ -1,3 +1,4 @@
+import * as React from "react";
 import ItemSelector from "../components/ItemSelector";
 import CartManager from "../components/CartManager";
 import PopupManager from "../components/PopupManager";
