@@ -2,7 +2,7 @@ import * as React from "react";
 import IconHelper from "../IconHelper";
 import Delete from "../../icons/delete.svg";
 import { useContext } from "react";
-import { VendingMContext } from "../../../App";
+import { VendingMContext } from "../CartProvider";
 function ItemSelItem({ item, qty, onDelete }) {
   const { removeFromCart } = useContext(VendingMContext);
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useContext } from "react";
 
-import { VendingMContext } from "../../../App";
+import { VendingMContext } from "../CartProvider";
 import { addPopup, removePopup } from "../PopupManager";
 
 import ItemSelItem from "./ItemSelItem";
