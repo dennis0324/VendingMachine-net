@@ -1,6 +1,6 @@
 import ProductItem from "./ProductItem";
 import { useContext } from "react";
-import { VendingMContext } from "../../App.js";
+import { VendingMContext } from "../../../App.js";
 
 function ProductManager({ className }) {
   const predefinedClass = "";

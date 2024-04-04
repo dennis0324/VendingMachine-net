@@ -5,7 +5,7 @@ import Add from "../../icons/add.svg";
 import Remove from "../../icons/remove.svg";
 
 import { useState, useContext } from "react";
-import { VendingMContext } from "../../App";
+import { VendingMContext } from "../../../App";
 
 function ConfirmCount({ qty = 10, item, onPopupCancel }) {
   const [count, setCount] = useState(1);

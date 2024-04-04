@@ -1,11 +1,11 @@
 import * as React from "react";
-import "./styles/tailwind.css";
+import "./renderer/styles/tailwind.css";
 
 import { createContext, useMemo, useState } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 
-import Admin from "./pages/Admin";
-import Home from "./pages/Home";
+import Admin from "./renderer/pages/Admin";
+import Home from "./renderer/pages/Home";
 
 // water 450, coffee 500, energydrink 550, premiumcoffee 700, coke 750,
 // specialdrink 800
@@ -74,6 +74,12 @@ function App() {
     if (find_item >= 0) {
       cartData[find_item].qty += count;
       setCartData([...cartData]);
+      const data = {
+        cmd: "purchase",
+        payload: cartData[find_item],
+      };
+      window.machine.setCount(data);
+
       return false;
     }
 
