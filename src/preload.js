@@ -7,5 +7,8 @@ contextBridge.exposeInMainWorld("machine", {
   setCount: (data) => {
     ipcRenderer.send("purchase", data);
   },
+  sendCredentials: (id, pass) => {
+    ipcRenderer.send("login", id, pass);
+  },
   products: () => ipcRenderer.invoke("products").then((result) => result),
 });

@@ -14,7 +14,7 @@ export const VendingMContext = createContext();
 function App() {
   return (
     <CartProvider>
-      <Router>
+      <Router basename="/">
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path="/admin" element={<Admin />} />

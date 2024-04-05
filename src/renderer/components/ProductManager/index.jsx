@@ -1,3 +1,4 @@
+import * as React from "react";
 import ProductItem from "./ProductItem";
 import { useContext } from "react";
 import { VendingMContext } from "../CartProvider";
