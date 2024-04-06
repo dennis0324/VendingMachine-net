@@ -14,7 +14,8 @@ const workerCode = () => {
       console.log(host);
 
       client.on("data", (data) => {
-        console.log(data);
+        console.log("data", data.toString());
+        parentPort.postMessage(data.toString());
       });
     } catch (e) {
       console.log("can't connect to server");
@@ -39,13 +40,14 @@ parentPort.on("message", (data) => {
       client.write(payload);
       break;
     case "purchase":
+      payload = createTcpDTO(data);
+      client.write(payload);
+      break;
+    case "login":
+      console.log("worker:", data);
       payload = createTcpDTO(data.cmd, data.id, data.payload);
       client.write(payload);
       break;
-  }
-
-  if (data.cmd === "purchase") {
-    client.write(JSON.stringify(data.payload));
   }
 });
 workerCode();

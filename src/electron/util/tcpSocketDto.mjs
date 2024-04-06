@@ -1,5 +1,6 @@
-export function createTcpDTO(cmd, id, payload) {
-  if (payload === undefined) payload = "";
-  const payloadStringify = JSON.stringify(payload);
-  return [cmd, id, payloadStringify].join("|");
+export function createTcpDTO(ipcDto) {
+  const arr = Object.entries(ipcDto).map(([k, v]) => {
+    return k === "payload" ? JSON.stringify(v) : v;
+  });
+  return arr.join("|");
 }

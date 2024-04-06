@@ -11,7 +11,8 @@ function Admin() {
   }
 
   function submit() {
-    window.machine.sendCredentials(id, password);
+    const a = window.machine.sendCredentials(id, password);
+    console.log("testing a", a);
   }
   return (
     <div className="App h-screen w-screen flex flex-col">

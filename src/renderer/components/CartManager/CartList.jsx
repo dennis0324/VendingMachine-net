@@ -11,7 +11,7 @@ import ButtonCompo from "../ButtonCompo";
 import ConfirmPurchase from "./ConfirmPurchase";
 import MoneySelector from "./MoneySelector";
 function List({ className = "", onRight, right }) {
-  const { total, cartData } = useContext(VendingMContext);
+  const { total, cartData, purchaseCart } = useContext(VendingMContext);
   const predefinedClass = "flex flex-row h-fit m-2";
   const combineclass = [className, predefinedClass].join(" ");
 
@@ -27,7 +27,11 @@ function List({ className = "", onRight, right }) {
         <span className="flex items-center">{total}원</span>
       </section>
       <SelectCompo
-        onLeft={() => addPopup(<ConfirmPurchase onRight={removePopup} />)}
+        onLeft={() =>
+          addPopup(
+            <ConfirmPurchase onRight={removePopup} onLeft={purchaseCart} />,
+          )
+        }
         right={right}
         onRight={onRight}
       />

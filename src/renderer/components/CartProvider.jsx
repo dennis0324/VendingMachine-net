@@ -70,7 +70,7 @@ function CartProvider({ children }) {
         cmd: "purchase",
         payload: cartData[find_item],
       };
-      window.machine.setCount(data);
+      // window.machine.setCount(data);
 
       return false;
     }
@@ -89,6 +89,12 @@ function CartProvider({ children }) {
     setCartData([]);
   }
 
+  //purchase
+  async function purchaseCart() {
+    const a = await window.machine.purchase(cartData);
+    console.log(a);
+  }
+
   const vendingMProvideData = useMemo(() => ({
     displayData,
     cartData,
@@ -97,6 +103,7 @@ function CartProvider({ children }) {
     addToCart,
     removeFromCart,
     clearCart,
+    purchaseCart,
   }));
 
   return (

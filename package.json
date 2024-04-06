@@ -43,6 +43,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "dayjs": "^1.11.10",
     "electron-squirrel-startup": "^1.0.0",
     "fs": "^0.0.1-security",
     "net": "^1.0.2",
