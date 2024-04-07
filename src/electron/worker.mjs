@@ -3,31 +3,52 @@ import { parentPort } from "worker_threads";
 import { createTcpDTO } from "./util/tcpSocketDto.mjs";
 import net from "net";
 
-let client;
+let client = new net.Socket();
 let host = "";
+var intervalId = false;
 
-const workerCode = () => {
-  async function run() {
-    try {
-      // client = net.connect(6666, "121.127.186.183");
-      client = net.connect(6124);
-      console.log(host);
+function tryConnect() {
+  console.log(">>> trying to connect...");
+  // client = net.connect(6666, "121.127.186.183");
+  client.connect(6124);
+}
 
-      client.on("data", (data) => {
-        console.log("data", data.toString());
-        parentPort.postMessage(data.toString());
-      });
-    } catch (e) {
-      console.log("can't connect to server");
-      return;
-    }
-  }
+function tryConnectInterval() {
+  if (intervalId !== false) return;
+  intervalId = setInterval(tryConnect, 5000);
+}
 
-  run();
-};
+function clearConnectInterval() {
+  if (intervalId === false) return;
+  clearInterval(intervalId);
+  intervalId = false;
+}
+
+client.on("data", (data) => {
+  console.log("rcv data:", data.toString());
+  parentPort.postMessage(data.toString());
+});
+
+client.on("connect", () => {
+  clearConnectInterval();
+  console.log("tcp connected");
+});
+
+client.on("error", (err) => {
+  console.log("tcp error:", err.code);
+  tryConnectInterval();
+});
+client.on("end", () => {
+  console.log("tcp closed try to reconnect");
+  tryConnectInterval();
+});
+client.on("close", () => {
+  console.log("tcp closed try to reconnect");
+  tryConnectInterval();
+});
 
 parentPort.on("message", (data) => {
-  console.log("parentPort", data);
+  console.log("send data:", data);
   if (data?.cmd === undefined) {
     return;
   }
@@ -50,4 +71,5 @@ parentPort.on("message", (data) => {
       break;
   }
 });
-workerCode();
+
+tryConnect();

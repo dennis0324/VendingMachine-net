@@ -91,8 +91,10 @@ function CartProvider({ children }) {
 
   //purchase
   async function purchaseCart() {
-    const a = await window.machine.purchase(cartData);
-    console.log(a);
+    let a = await window.machine.purchase(cartData);
+    if (a.status === undefined) return false;
+    if (a.status === "success") return true;
+    return false;
   }
 
   const vendingMProvideData = useMemo(() => ({

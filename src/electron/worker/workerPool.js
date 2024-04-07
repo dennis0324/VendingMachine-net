@@ -34,14 +34,26 @@ class IpcMap extends Map {
     ];
   }
 }
+
 const IpcHash = new IpcMap();
+
 function createHash(ipcDto) {
   const joined = [ipcDto.cmd, ipcDto.vendingID, ipcDto.date].join("");
   return crypto.createHash("sha1").update(joined).digest("hex");
 }
-export function IpcPool() {
-  const worker = new Worker("./src/electron/worker.mjs");
 
+/**
+ * react <-> electron ipc 통신
+ */
+export function IpcPool() {
+  let worker;
+  try {
+    worker = new Worker("./src/electron/worker.mjs");
+  } catch (e) {
+    console.log(e);
+  }
+
+  // 전송하면서 hash 설정 및 해당 hash에 promise 걸어두기
   async function postMess(ipcDto) {
     if (ipcDto.hash === "") ipcDto.hash = createHash(ipcDto);
 
@@ -50,7 +62,6 @@ export function IpcPool() {
       ipcDto.reject = rej;
     });
     IpcHash.set(ipcDto.hash, ipcDto);
-    console.log("IpcHash", IpcHash);
     const postData = {
       cmd: ipcDto.cmd,
       hash: ipcDto.hash,
@@ -60,7 +71,13 @@ export function IpcPool() {
     worker.postMessage(postData);
     await ipcDto.arrived;
 
-    return ipcDto.payload;
+    let payload;
+    try {
+      payload = JSON.parse(ipcDto.payload);
+    } catch (e) {
+      payload = ipcDto.payload;
+    }
+    return payload;
   }
 
   /**
@@ -68,9 +85,11 @@ export function IpcPool() {
    */
   worker.on("message", (data) => {
     const parsed = JSON.parse(data);
+    console.log(parsed);
     const ipcDto = IpcHash.get(parsed.hash);
     if (ipcDto === undefined) return;
     ipcDto.payload = parsed?.payload || "";
+
     ipcDto.resolve();
     IpcHash.delete(parsed.hash);
 
