@@ -47,6 +47,7 @@ const workerPool = IpcPool();
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
+    workerPool.postMessage({ cmd: "quit" });
     app.quit();
   }
 });

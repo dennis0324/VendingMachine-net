@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import Store from "electron-store";
 import crypto from "crypto";
 import { Worker } from "worker_threads";
 
@@ -36,6 +37,7 @@ class IpcMap extends Map {
 }
 
 const IpcHash = new IpcMap();
+const store = new Store();
 
 function createHash(ipcDto) {
   const joined = [ipcDto.cmd, ipcDto.vendingID, ipcDto.date].join("");
@@ -66,6 +68,7 @@ export function IpcPool() {
       cmd: ipcDto.cmd,
       hash: ipcDto.hash,
       vendingId: ipcDto.vendingId,
+      date: ipcDto.date,
       payload: ipcDto.payload,
     };
     worker.postMessage(postData);
@@ -84,40 +87,67 @@ export function IpcPool() {
    *
    */
   worker.on("message", (data) => {
-    const parsed = JSON.parse(data);
-    console.log(parsed);
-    const ipcDto = IpcHash.get(parsed.hash);
+    console.log("parsed", data);
+    const [cmd, hash, vendingId, date, payload] = data.split("|");
+    if (cmd === "handshake") {
+      store.set("vendingId", vendingId);
+      return;
+    }
+
+    const ipcDto = IpcHash.get(hash);
+
     if (ipcDto === undefined) return;
-    ipcDto.payload = parsed?.payload || "";
+
+    ipcDto.payload = payload || "";
 
     ipcDto.resolve();
-    IpcHash.delete(parsed.hash);
-
-    // console.log("workerPool", parsed);
+    IpcHash.delete(hash);
   });
 
-  //////////////////////////
+  worker.on("online", () => {
+    const ipcDto = {
+      cmd: "handshake",
+      hash: "",
+      vendingId: "",
+      date: new Date().toISOString(),
+      payload: "",
+    };
+    worker.postMessage(ipcDto);
+  });
+
   // 구매 요청
-  //////////////////////////
   /**
    *
    * @param {IPCDto} ipcDto
    */
-  ipcMain.handle("purchase", async (event, ipcDto) => {
+  ipcMain.handle("purchase", async (_, ipcDto) => {
     return postMess(ipcDto);
   });
-  //////////////////////////
 
-  // ipcMain.on("login", (event, id, pass) => {
-  //   const hashedPassword = crypto
-  //     .createHash("sha256")
-  //     .update(pass)
-  //     .digest("base64");
-  //   worker.postMessage({
-  //     cmd: "login",
-  //     id: "",
-  //     payload: { id, hashedPassword },
-  //   });
-  //
-  // });
+  // 로그인 요청
+  ipcMain.handle("login", async (_, ipcDto) => {
+    ipcDto.payload.password = crypto
+      .createHash("sha256")
+      .update(ipcDto.payload.password)
+      .digest("base64");
+    return postMess(ipcDto);
+  });
+
+  // 비밀번호 변경
+  ipcMain.handle("changePassword", async (_, ipcDto) => {});
+
+  // 자판기 상품 ID
+  ipcMain.handle("vendingId", async (_) => {
+    return store.get("vendingId");
+  });
+
+  ipcMain.handle("getMoney", async (_, ipcDto) => {
+    return postMess(ipcDto);
+  });
+
+  ipcMain.handle("getConstantProduct", async (_, ipcDto) => {
+    return postMess(ipcDto);
+  });
+
+  return worker;
 }

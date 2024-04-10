@@ -2,15 +2,22 @@
 import { parentPort } from "worker_threads";
 import { createTcpDTO } from "./util/tcpSocketDto.mjs";
 import net from "net";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 let client = new net.Socket();
 let host = "";
 var intervalId = false;
-
+console.log(">>> worker start Host: ", process.env.HOST);
 function tryConnect() {
   console.log(">>> trying to connect...");
-  // client = net.connect(6666, "121.127.186.183");
-  client.connect(6124);
+  try {
+    client.connect(process.env.PORT, process.env.HOST);
+  } catch (e) {
+    tryConnectInterval();
+  }
+  // client.connect(6124);
 }
 
 function tryConnectInterval() {
@@ -26,6 +33,7 @@ function clearConnectInterval() {
 
 client.on("data", (data) => {
   console.log("rcv data:", data.toString());
+
   parentPort.postMessage(data.toString());
 });
 
@@ -57,7 +65,10 @@ parentPort.on("message", (data) => {
   switch (data.cmd) {
     case "handshake":
     case "products":
-      payload = createTcpDTO(data.cmd, "");
+    case "getMoney":
+    case "getConstantProduct":
+    case "quit":
+      payload = createTcpDTO(data);
       client.write(payload);
       break;
     case "purchase":
@@ -66,7 +77,7 @@ parentPort.on("message", (data) => {
       break;
     case "login":
       console.log("worker:", data);
-      payload = createTcpDTO(data.cmd, data.id, data.payload);
+      payload = createTcpDTO(data);
       client.write(payload);
       break;
   }

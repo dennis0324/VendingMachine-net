@@ -3,12 +3,6 @@
 //
 import { contextBridge, ipcRenderer } from "electron";
 
-// import dayjs from "dayjs";
-// import timezone from "dayjs/plugin/timezone";
-// import utc from "dayjs/plugin/utc";
-// dayjs.extend(timezone);
-// dayjs.extend(utc);
-
 /**
  * @typedef ProductDto
  * @property {string} name
@@ -29,7 +23,7 @@ async function sendToMain(cmd, data) {
     hash: "",
     cmd,
     vendingId,
-    date,
+    date: date.toISOString(),
     payload: data,
   };
 
@@ -37,12 +31,9 @@ async function sendToMain(cmd, data) {
 }
 
 contextBridge.exposeInMainWorld("machine", {
-  sendCredentials: (id, pass) => {
-    // ipcRenderer.send("login", id, pass);
-    // ipcRenderer.invoke();
-  },
+  sendCredentials: (id, pass) => {},
   login: async (id, pass) => {
-    return;
+    return await sendToMain("login", { id, password: pass });
   },
   /**
    * @param {ProductDto[]} productDto
@@ -50,5 +41,13 @@ contextBridge.exposeInMainWorld("machine", {
   purchase: async (productDto) => {
     return await sendToMain("purchase", productDto);
   },
-  products: () => ipcRenderer.invoke("products").then((result) => result),
+  vendingId: async () => {
+    return await sendToMain("vendingId", "");
+  },
+  getMoney: async () => {
+    return await sendToMain("getMoney", "");
+  },
+  getConstantProduct: async () => {
+    return await sendToMain("getConstantProduct", "");
+  },
 });

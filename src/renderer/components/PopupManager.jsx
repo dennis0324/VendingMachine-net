@@ -6,13 +6,34 @@ let popupItem = {};
 let setPopupItems = () => {};
 
 // popup을 스택에 추가한다.
-export function addPopup(component) {
+export function addPopup(component, opt) {
+  const style = {};
+  console.log(opt);
+  if (opt?.direction !== undefined) {
+    let [opt1, opt2] = opt.direction.split("-");
+    if (!opt1) opt1 = "left";
+    if (!opt2) opt2 = "top";
+
+    let posX = opt.pos.x;
+    let posY = opt.pos.y;
+    if (opt.pos.x.indexOf("%") < 0) posX += "px";
+    if (opt.pos.y.indexOf("%") < 0) posY += "px";
+    style[opt1] = posX || "50%";
+    style[opt2] = posY || "50%";
+  } else {
+    style["left"] = "50%";
+    style["top"] = "50%";
+  }
+
   const compo = {
-    component: () => <Popup>{component}</Popup>,
+    component: () => (
+      <Popup style={style} pivot={opt?.pivot} blur={opt?.blur}>
+        {component}
+      </Popup>
+    ),
     name: `popup-${popupItem.length + 1}`,
   };
   const arr = [...popupItem, compo];
-  console.log(arr);
   setPopupItems(arr);
 }
 
@@ -37,7 +58,10 @@ function PopupManager() {
   return (
     <div className="popup-manager">
       {popupData.map((item, index) => {
-        return createElement(item.component, { key: index, isOpen: true });
+        return createElement(item.component, {
+          key: index,
+          isOpen: true,
+        });
       })}
     </div>
   );
