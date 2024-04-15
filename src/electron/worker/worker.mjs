@@ -1,6 +1,6 @@
 // const net = require("net");
 import { parentPort } from "worker_threads";
-import { createTcpDTO } from "./util/tcpSocketDto.mjs";
+import { createTcpDTO } from "../util/tcpSocketDto.mjs";
 import net from "net";
 import dotenv from "dotenv";
 
@@ -17,7 +17,6 @@ function tryConnect() {
   } catch (e) {
     tryConnectInterval();
   }
-  // client.connect(6124);
 }
 
 function tryConnectInterval() {

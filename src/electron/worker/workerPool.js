@@ -2,8 +2,7 @@ import { ipcMain } from "electron";
 import Store from "electron-store";
 import crypto from "crypto";
 import { Worker } from "worker_threads";
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import { DataController } from "./DataController.mjs";
 
 /**
  * @typedef IPCDto
@@ -14,35 +13,8 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * @property {any} payload
  */
 
-class IpcMap extends Map {
-  add(cmd, vendingId, value) {
-    let resolve, reject;
-    const hash = createHash(cmd, vendingId);
-    const promise = new Promise((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-    this.set(hash, resolve);
-
-    return [
-      promise,
-      {
-        cmd,
-        vendingId,
-        hash,
-        payload: JSON.stringify(value),
-      },
-    ];
-  }
-}
-
-const IpcHash = new IpcMap();
 const store = new Store();
-
-function createHash(ipcDto) {
-  const joined = [ipcDto.cmd, ipcDto.vendingID, ipcDto.date].join("");
-  return crypto.createHash("sha1").update(joined).digest("hex");
-}
+const dataController = new DataController();
 
 /**
  * react <-> electron ipc 통신
@@ -50,37 +22,16 @@ function createHash(ipcDto) {
 export function IpcPool() {
   let worker;
   try {
-    worker = new Worker("./src/electron/worker.mjs");
+    worker = new Worker("./src/electron/worker/worker.mjs");
   } catch (e) {
     console.log(e);
   }
 
   // 전송하면서 hash 설정 및 해당 hash에 promise 걸어두기
   async function postMess(ipcDto) {
-    if (ipcDto.hash === "") ipcDto.hash = createHash(ipcDto);
-
-    ipcDto.arrived = new Promise((res, rej) => {
-      ipcDto.resolve = res;
-      ipcDto.reject = rej;
-    });
-    IpcHash.set(ipcDto.hash, ipcDto);
-    const postData = {
-      cmd: ipcDto.cmd,
-      hash: ipcDto.hash,
-      vendingId: ipcDto.vendingId,
-      date: ipcDto.date,
-      payload: ipcDto.payload,
-    };
+    const postData = dataController.append(ipcDto);
     worker.postMessage(postData);
-    await ipcDto.arrived;
-
-    let payload;
-    try {
-      payload = JSON.parse(ipcDto.payload);
-    } catch (e) {
-      payload = ipcDto.payload;
-    }
-    return payload;
+    return await dataController.arrived(postData.hash);
   }
 
   /**
@@ -88,20 +39,12 @@ export function IpcPool() {
    */
   worker.on("message", (data) => {
     console.log("parsed", data);
-    const [cmd, hash, vendingId, date, payload] = data.split("|");
+    const [cmd, hash, vendingId, _1, _2] = data.split("|");
     if (cmd === "handshake") {
       store.set("vendingId", vendingId);
       return;
     }
-
-    const ipcDto = IpcHash.get(hash);
-
-    if (ipcDto === undefined) return;
-
-    ipcDto.payload = payload || "";
-
-    ipcDto.resolve();
-    IpcHash.delete(hash);
+    dataController.remove(hash);
   });
 
   worker.on("online", () => {
