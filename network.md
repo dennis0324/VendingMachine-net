@@ -95,26 +95,7 @@ ex)
 	]
 }
 ```
-### 5.`soldout`
-| cmd     | hash | vendingId | date | payload |
-| ------- | ---- | --------- | ---- | ------- |
-| soldout | -    | -         | -    | 아래 참조   |
-``` json
-{
-	name:string
-}
-```
-#### return
-| cmd     | hash | vendingId | date | payload |
-| ------- | ---- | --------- | ---- | ------- |
-| soldout | -    | -         | -    | 아래 참조   |
-```json
-{
-	status:"success|error|deny",
-	data:""
-}
-```
-### 6.`insertMoney`
+### 5.`insertMoney`
 
 | cmd         | hash | vendingId | date | payload |
 | ----------- | ---- | --------- | ---- | ------- |
@@ -137,7 +118,7 @@ ex)
 }
 ```
 
-### 7.`retrieveMoney`
+### 6.`retrieveMoney`
 
 | cmd           | hash | vendingId | date | payload |
 | ------------- | ---- | --------- | ---- | ------- |
@@ -160,7 +141,7 @@ ex)
 }
 ```
 
-### 8.`login`
+### 7.`login`
 
 | cmd   | hash | vendingId | date | payload |
 | ----- | ---- | --------- | ---- | ------- |
@@ -183,7 +164,7 @@ note) password는 sha256로 암호화되고 base64로 코딩되어 보내집니�
 }
 ```
 
-### 9..`collectMoney`(admin)
+### 8..`collectMoney`(admin)
 
 | cmd          | hash | vendingId | date | payload |
 | ------------ | ---- | --------- | ---- | ------- |
