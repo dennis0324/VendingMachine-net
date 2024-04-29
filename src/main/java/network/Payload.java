@@ -19,3 +19,5 @@ public class Payload {
         }
     }
 }
+
+// change, purchase, supply can write

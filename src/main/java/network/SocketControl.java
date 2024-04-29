@@ -114,7 +114,6 @@ public class SocketControl {
                             System.out.println("[알림]: " + classification[2] + "번 머신 건너뜀");
                         }
 
-
                         // CMD | HASH | ID | DATE | PAYLOAD
                         // 메세지 명령 분류 영역
                         try {
@@ -138,11 +137,6 @@ public class SocketControl {
                                 case "change":
                                     Change change = new Change(connection, sqlData, classData);
                                     sendToClient(change.run(new Payload(classData.getValue(4))));
-                                    break;
-
-                                case "soldout":
-                                    Soldout soldout = new Soldout(connection, sqlData, classData);
-                                    sendToClient(soldout.run(new Payload(classData.getValue(4))));
                                     break;
 
                                 case "insertMoney":

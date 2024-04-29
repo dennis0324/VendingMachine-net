@@ -34,6 +34,8 @@ public class Supply extends Processing {
             ppst.setInt(3, productID);    // 1 ~ 6
             ppst.setString(4, "MachineItemTbl");    // NULL 값 사용 가능
             ppst.setString(5, corrections);    // NULL 값 사용 가능
+            
+            // 쿼리 실행
             ResultSet rs = ppst.executeQuery();
 
             // 결과 처리

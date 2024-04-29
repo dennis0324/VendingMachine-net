@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class Change extends Processing {
 
@@ -23,31 +22,32 @@ public class Change extends Processing {
         System.out.println("[알림]: CMD 코드 - change (Admin only)");
 
         JSONObject jo = new JSONObject();
-        ArrayList<JSONObject> jsonArray = new ArrayList<>();
+        int productID = (int)payload.get("productID");
+        String corrections = (String)payload.get("valData");
+
+        // 먼저 보급할 대상을 검색하고 비교하는 연산 과정 필요
+        // todo::
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        PreparedStatement ppst = conn.prepareStatement("CALL CHANGE_PRODUCT(?, ?)");
-        ppst.setString(1, sqlData[3]);  // 어드민 확인
-        ppst.setString(2, (String)classification.getValue(2));         // 자판기 번호
-        //ppst.setString(3, changeTarget); // 변경할 제품 번호/이름/가격
-        ResultSet rs = ppst.executeQuery();
+        try {
+            PreparedStatement ppst = conn.prepareStatement("CALL EXE_PRODUCT(?, ?, ?, ?, ?)");
+            // cmd, vending id, product id, tbl name, tbl data
+            ppst.setString(1, "SET"); // SET | GET
+            ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
+            ppst.setInt(3, productID);    // 1 ~ 6
+            ppst.setString(4, "MachineItemTbl");    // NULL 값 사용 가능
+            ppst.setString(5, corrections);    // NULL 값 사용 가능
 
-        // 결과 처리
-        while (rs.next()) {
-            // 각 행에서 모든 열의 데이터를 가져와서 출력
-            JSONObject jsonData = new JSONObject();
+            // 쿼리 실행
+            ResultSet rs = ppst.executeQuery();
 
-            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String data = rs.getMetaData().getColumnLabel(i);
-                jsonData.put(data, rs.getString(i));
-            }
-            // System.out.println(jsonType.toString());
-            jsonArray.add(jsonData);
+            // 결과 처리
+            jo.put("status", "success");
+            jo.put("data", "");
+        } catch (SQLException e) {
+            jo.put("status", "error");
+            jo.put("data", "");
         }
-        // System.out.println(jsonArray.toString());
-        jo.put("status", "success");
-        jo.put("data", jsonArray);
-
         classification.setValue(4, jo.toString());
         String receiveMSG = classification.toString();
         System.out.println("[전송]: " + receiveMSG);
