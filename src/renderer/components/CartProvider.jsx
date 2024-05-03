@@ -106,6 +106,7 @@ function CartProvider({ children }) {
     removeFromCart,
     clearCart,
     purchaseCart,
+    setDisplayData
   }));
 
   return (
