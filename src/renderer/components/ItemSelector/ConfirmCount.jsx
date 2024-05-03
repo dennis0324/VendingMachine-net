@@ -40,7 +40,7 @@ function ConfirmCount({ qty = 10, item, onPopupCancel }) {
             <Remove />
           </IconHelper>
         </div>
-        <span className="text-lg">{count}</span>
+        <span className="text-lg text-center">{count}</span>
         <div className="mx-3">
           <IconHelper onClick={increase} className="cursor-pointer">
             <Add />
