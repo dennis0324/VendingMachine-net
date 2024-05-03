@@ -35,7 +35,6 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
-    console.log("activate");
   });
 });
 
@@ -47,7 +46,6 @@ const workerPool = IpcPool();
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    workerPool.postMessage({ cmd: "quit" });
     app.quit();
   }
 });
