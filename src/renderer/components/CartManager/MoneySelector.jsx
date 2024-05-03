@@ -1,3 +1,4 @@
+import * as React from 'react';
 import SelectCompo from "../SelectCompo";
 import ButtonCompo from "../ButtonCompo";
 import { useMemo, useState } from "react";
@@ -50,7 +51,7 @@ function MoneySelector() {
     removePopup();
   }
   function confirm() {
-    setCookie("money", moneyCount);
+    window.machine.insertMoney(moneyCount.map(e => ({use:e.use,price:e.price})))
     removePopup();
   }
 
@@ -73,7 +74,7 @@ function MoneySelector() {
       <section>
         <div className="flex flex-col">
           {moneyOptions.map((option, index) => (
-            <div className="grid grid-cols-4 items-center py-2">
+            <div className="grid grid-cols-4 items-center py-2" key={'moneyOptions-'+index}>
               <button
                 disabled={false}
                 className="bg-gray-300 p-2 rounded-lg"
@@ -101,7 +102,7 @@ function MoneySelector() {
           leftColor="bg-red-300"
           rightColor="bg-red-400"
         />
-        <ButtonCompo message="저장하기" onClick={confirm} />
+        <ButtonCompo message="투입하기" onClick={confirm} />
       </section>
     </div>
   );
