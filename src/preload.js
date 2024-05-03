@@ -18,11 +18,10 @@ async function sendToMain(cmd, data) {
   const vendingId = "testing";
   const date = new Date();
   // const hash = createHash(cmd, date, vendingId);
-
   const payload = {
     hash: "",
     cmd,
-    vendingId,
+    vendingId:"",
     date: date.toISOString(),
     payload: data,
   };
@@ -50,4 +49,10 @@ contextBridge.exposeInMainWorld("machine", {
   getConstantProduct: async () => {
     return await sendToMain("getConstantProduct", "");
   },
+  getProducts: async () => {
+    return await sendToMain("products",{});
+  },
+  insertMoney: async (moneyDto) => {
+    return await sendToMain("insertMoney",moneyDto)
+  }
 });
