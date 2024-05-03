@@ -17,7 +17,7 @@ import ChangePasswordForm from "../components/ChangePasswordForm";
 function Admin() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [login, setLogin] = useState(true);
+  const [login, setLogin] = useState(false);
   function goToHome() {
     window.location.hash = "/";
   }
