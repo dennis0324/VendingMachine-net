@@ -1,3 +1,4 @@
+import crypto from "crypto";
 export class DataController {
   ipcHash = new Map();
 
@@ -26,22 +27,26 @@ export class DataController {
     return postData;
   }
 
-  arrived(hash) {
-    return this.ipcHash.get(hash);
+  async arrived(hash) {
+    return await this.ipcHash.get(hash).arrived;
+  }
+
+  setData(hash,data){
+    const ipcDto = this.ipcHash.get(hash);
+    ipcDto.payload = data;
   }
 
   remove(hash) {
     const ipcDto = this.ipcHash.get(hash);
 
     if (ipcDto === undefined) return;
-
     let jsonPayload = "";
     try {
-      jsonPayload = JSON.parse(payload);
+      jsonPayload = JSON.parse(ipcDto.payload);
     } catch (e) {
-      jsonPayload = payload;
+      jsonPayload = ipcDto.payload;
     }
     this.ipcHash.delete(hash);
-    ipcDto.resolve(payload);
+    ipcDto.resolve(jsonPayload);
   }
 }
