@@ -38,19 +38,19 @@ client.on("data", (data) => {
 
 client.on("connect", () => {
   clearConnectInterval();
-  console.log("tcp connected");
+  console.log(">> tcp connected");
 });
 
 client.on("error", (err) => {
-  console.log("tcp error:", err.code);
+  console.log(">>> tcp error:", err.code);
   tryConnectInterval();
 });
 client.on("end", () => {
-  console.log("tcp closed try to reconnect");
+  console.log(">>> tcp closed try to reconnect");
   tryConnectInterval();
 });
 client.on("close", () => {
-  console.log("tcp closed try to reconnect");
+  console.log(">>> tcp closed try to reconnect");
   tryConnectInterval();
 });
 
@@ -63,10 +63,11 @@ parentPort.on("message", (data) => {
   let payload;
   switch (data.cmd) {
     case "handshake":
-    case "products":
     case "getMoney":
+    case "products":
     case "getConstantProduct":
     case "quit":
+    case "insertMoney":
       payload = createTcpDTO(data);
       client.write(payload);
       break;
