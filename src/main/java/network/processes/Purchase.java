@@ -5,12 +5,12 @@ import network.Payload;
 import network.Processing;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class Purchase extends Processing {
 
@@ -20,37 +20,42 @@ public class Purchase extends Processing {
 
     @Override
     public String run(Payload payload) throws SQLException, JSONException {
-        System.out.println("[알림]: CMD 코드 - products");
+        System.out.println("[알림]: CMD 코드 - purchase");
 
-        // 쿼리 준비
-        String receiveMSG = null;
         JSONObject jo = new JSONObject();
-        String tmp = (String)classification.getValue(2);
-        PreparedStatement ppst = conn.prepareStatement("CALL GET_PRODUCT(?)");
-        ppst.setString(1, tmp);
+        JSONArray tmp = (JSONArray)payload.get();
 
-        // 쿼리 실행 및 결과 가져오기
-        ResultSet rs = ppst.executeQuery();
-        ArrayList<JSONObject> jsonArray = new ArrayList<>();
+        int productID = 1;
 
-        // 결과 처리
-        while (rs.next()) {
-            // 각 행에서 모든 열의 데이터를 가져와서 출력
-            JSONObject jsonData = new JSONObject();
+        System.out.println(tmp);
 
-            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String data = rs.getMetaData().getColumnLabel(i);
-                jsonData.put(data, rs.getString(i));
-            }
-            // System.out.println(jsonType.toString());
-            jsonArray.add(jsonData);
+        String corrections = "null";
+        //(String)payload.get("data");     // purchase 코드에 맞는 payload 데이터 변환 필요
 
+        // 쿼리 준비 및 실행 그리고 결과 가져오기
+        try {
+            PreparedStatement ppst = conn.prepareStatement("CALL EXE_PRODUCT(?, ?, ?, ?, ?)");
+            // cmd, vending id, product id, tbl name, tbl data
+            ppst.setString(1, "SET"); // SET | GET
+            ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
+            ppst.setInt(3, productID);    // 1 ~ 6
+            ppst.setString(4, "MachineItemTbl");    // NULL 값 사용 가능
+            ppst.setString(5, corrections);    // NULL 값 사용 가능
+
+            // 쿼리 실행
+            ResultSet rs = ppst.executeQuery();
+
+            // 결과 처리
+            jo.put("status", "success");
+            jo.put("data", "");
+        } catch (SQLException e) {
+            jo.put("status", "error");
+            jo.put("data", "");
         }
-        //System.out.println(jsonArray.toString());
-        jo.put("data", jsonArray);
         classification.setValue(4, jo.toString());
-        receiveMSG = classification.toString();
+        String receiveMSG = classification.toString();
         System.out.println("[전송]: " + receiveMSG);
+
         return receiveMSG;
     }
 }

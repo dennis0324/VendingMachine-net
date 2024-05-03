@@ -23,10 +23,18 @@ public class Change extends Processing {
 
         JSONObject jo = new JSONObject();
         int productID = (int)payload.get("productID");
-        String corrections = (String)payload.get("valData");
+        String corrections = (String)payload.get("data");    // change 코드에 맞는 payload 데이터 변환 필요
 
-        // 먼저 보급할 대상을 검색하고 비교하는 연산 과정 필요
-        // todo::
+        /*
+        * productDto
+        * {
+        *   name:int,           // productID
+        *   price:number,       // productPrice
+        *   qty:number          // productQty
+        * }
+        * */ // change 에선 배열의 형태로 반환
+
+        // todo:: 먼저 보급할 대상을 검색하고 비교하는 연산 과정 필요
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
         try {

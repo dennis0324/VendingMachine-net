@@ -23,7 +23,6 @@ public class Supply extends Processing {
 
         JSONObject jo = new JSONObject();
         int productID = (int)payload.get("productID");
-        String corrections = (String)payload.get("valData");
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
         try {
@@ -33,7 +32,7 @@ public class Supply extends Processing {
             ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
             ppst.setInt(3, productID);    // 1 ~ 6
             ppst.setString(4, "MachineItemTbl");    // NULL 값 사용 가능
-            ppst.setString(5, corrections);    // NULL 값 사용 가능
+            ppst.setString(5, null);    // NULL 값 사용 가능
             
             // 쿼리 실행
             ResultSet rs = ppst.executeQuery();

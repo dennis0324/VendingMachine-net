@@ -19,7 +19,7 @@ public class Handshake extends Processing {
         // 결과 처리
         JSONObject jo = new JSONObject();
         jo.put("status", "success");
-        jo.put("data", "");
+        jo.put("data", new JSONObject());
 
         classification.setValue(2, counter);
         classification.setValue(4, jo.toString());

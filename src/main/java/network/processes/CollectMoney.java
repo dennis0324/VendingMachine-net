@@ -27,7 +27,7 @@ public class CollectMoney extends Processing {
         
         
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        PreparedStatement ppst = conn.prepareStatement("CALL GET_PRODUCT(?, ?)");
+        PreparedStatement ppst = conn.prepareStatement("CALL EXE_MONEY(?, ?, ?, ?, ?)");
         ppst.setString(1, sqlData[3]);
         ppst.setString(2, (String)classification.getValue(2));
         ResultSet rs = ppst.executeQuery();

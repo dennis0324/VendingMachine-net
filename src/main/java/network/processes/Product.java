@@ -3,10 +3,10 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.sql.*;
-import java.util.ArrayList;
 
 public class Product extends Processing {
 
@@ -18,7 +18,7 @@ public class Product extends Processing {
     public String run(Payload payload) throws SQLException, JSONException {
         System.out.println("[알림]: CMD 코드 - products");
 
-        ArrayList<JSONObject> jsonArray = new ArrayList<>();
+        JSONArray ja = new JSONArray();
         JSONObject jo = new JSONObject();
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
@@ -35,10 +35,10 @@ public class Product extends Processing {
                 String data = rs.getMetaData().getColumnLabel(i);
                 jsonData.put(data, rs.getString(i));
             }
-            jsonArray.add(jsonData);
+            ja.put(jsonData);
         }
 
-        jo.put("data", jsonArray);
+        jo.put("data", ja);
         classification.setValue(4, jo.toString());
         String receiveMSG = classification.toString();
         System.out.println("[전송]: " + receiveMSG);
