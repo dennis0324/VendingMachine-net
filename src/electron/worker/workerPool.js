@@ -39,11 +39,21 @@ export function IpcPool() {
    */
   worker.on("message", (data) => {
     console.log("parsed", data);
-    const [cmd, hash, vendingId, _1, _2] = data.split("|");
+    const [cmd, hash, vendingId, _1, payload] = data.split("|");
     if (cmd === "handshake") {
       store.set("vendingId", vendingId);
       return;
     }
+    let jsonPayload = '';
+    try{
+      jsonPayload = JSON.parse(payload);
+    }
+    catch(e){
+      console.log('[warn]: payload json parse failed');
+      jsonPayload = payload;
+    }
+    console.log("jsonPayload",jsonPayload);
+    dataController.setData(hash,jsonPayload);
     dataController.remove(hash);
   });
 
@@ -53,7 +63,7 @@ export function IpcPool() {
       hash: "",
       vendingId: "",
       date: new Date().toISOString(),
-      payload: "",
+      payload: {},
     };
     worker.postMessage(ipcDto);
   });
@@ -64,6 +74,7 @@ export function IpcPool() {
    * @param {IPCDto} ipcDto
    */
   ipcMain.handle("purchase", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId")
     return postMess(ipcDto);
   });
 
@@ -85,12 +96,23 @@ export function IpcPool() {
   });
 
   ipcMain.handle("getMoney", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId")
     return postMess(ipcDto);
   });
 
   ipcMain.handle("getConstantProduct", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId")
     return postMess(ipcDto);
   });
 
+  ipcMain.handle("products",async (_,ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId")
+    return postMess(ipcDto);
+  })
+
+  ipcMain.handle("insertMoney",async (_,ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId")
+    return postMess(ipcDto);
+  })
   return worker;
 }
