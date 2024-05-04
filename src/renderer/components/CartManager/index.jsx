@@ -24,8 +24,8 @@ function CartManager(props) {
       <container className={combineClass}>
         <CartList right={"비우기"} onRight={removePopup} />
       </container>
-      <container className="max-sm:flex hidden h-12 bg-gray-100 flex-row w-full pl-3">
-        <div className="flex flex-row flex-1">
+      <container className="max-sm:flex hidden h-12 bg-gray-100 flex-row w-full">
+        <div className="flex flex-row flex-1 pl-3">
           <span className="flex-1 flex items-center">총 결제 금액</span>
           <span className="flex items-center">{total}원</span>
         </div>
