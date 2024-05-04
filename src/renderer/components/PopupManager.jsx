@@ -8,7 +8,6 @@ let setPopupItems = () => {};
 // popup을 스택에 추가한다.
 export function addPopup(component, opt) {
   const style = {};
-  console.log(opt);
   if (opt?.direction !== undefined) {
     let [opt1, opt2] = opt.direction.split("-");
     if (!opt1) opt1 = "left";
