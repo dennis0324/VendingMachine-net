@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { getCookie, setCookie } from "../../utils/cookies";
 import { removePopup } from "../PopupManager";
 
+import { TEXT } from '../../utils/constants';
+
 const moneyOptions = [[10], [50], [100], [500], [1000, 5]];
 const LIMIT = 7000;
 function MoneySelector() {
@@ -14,8 +16,7 @@ function MoneySelector() {
   if (!cookie) {
     cookie = Array.from({ length: 5 }, (_, i) => ({
       use: 0,
-      limit: 10, //가지고 있는 개수
-      realLimit: moneyOptions[i][1] || 10, //실제 제한 개수
+      realLimit: moneyOptions[i][1] || 0, //실제 제한 개수
       price: moneyOptions[i][0],
     }));
     setCookie("money", cookie);
@@ -26,8 +27,7 @@ function MoneySelector() {
   // 투입한 동전의 개수를 증가시킨다.
   function increase(index) {
     const money = moneyCount.at(index);
-    if (money.use >= money.limit) return;
-    if (money.use >= money.realLimit) return;
+    if (money.realLimit != 0 && money.use >= money.realLimit) return;
     if (total + money.price > LIMIT) return;
     money.use += 1;
     setMoneyCount([...moneyCount]);
@@ -51,6 +51,12 @@ function MoneySelector() {
     removePopup();
   }
   function confirm() {
+    const finded = moneyCount.filter(e => e.use > 0);
+    if(finded.length == 0) {
+      alert(TEXT.NOSELECT);
+      removePopup();
+      return;
+    }
     window.machine.insertMoney(moneyCount.map(e => ({use:e.use,price:e.price})))
     removePopup();
   }
@@ -72,36 +78,22 @@ function MoneySelector() {
         <span className="flex items-center">{total}원</span>
       </section>
       <section>
-        <div className="flex flex-col">
+        <div className="grid grid-cols-3 items-center py-2">
           {moneyOptions.map((option, index) => (
-            <div className="grid grid-cols-4 items-center py-2" key={'moneyOptions-'+index}>
+            <div className="items-center py-2 px-2" key={'moneyOptions-'+index}>
               <button
                 disabled={false}
-                className="bg-gray-300 p-2 rounded-lg"
+                className="bg-gray-300 p-2 rounded-lg w-full"
                 onClick={() => increase(index)}
               >
                 {option[0]}원
               </button>
-              <div>{moneyCount[index]?.use}</div>
-              <div className="text-nowrap w-full col-span-2 flex justify-center">
-                <span>
-                  남은 개수: {moneyCount[index].limit - moneyCount[index]?.use}
-                  개
-                </span>
-              </div>
             </div>
           ))}
+          <ButtonCompo message='반환하기' onClick={clear} color='bg-red-400'/>
         </div>
       </section>
-      <section className="grid grid-cols-2">
-        <SelectCompo
-          left="반환하기"
-          onLeft={clear}
-          right="지폐 반환"
-          onRight={confirm}
-          leftColor="bg-red-300"
-          rightColor="bg-red-400"
-        />
+      <section className="grid">
         <ButtonCompo message="투입하기" onClick={confirm} />
       </section>
     </div>
