@@ -39,10 +39,10 @@ public class Supply extends Processing {
 
             // 결과 처리
             jo.put("status", "success");
-            jo.put("data", "");
+            jo.put("data", new JSONObject());
         } catch (SQLException e) {
             jo.put("status", "error");
-            jo.put("data", "");
+            jo.put("data", new JSONObject());
         }
         classification.setValue(4, jo.toString());
         String receiveMSG = classification.toString();

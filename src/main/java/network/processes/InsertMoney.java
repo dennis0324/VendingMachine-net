@@ -3,6 +3,7 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class InsertMoney extends Processing {
 
@@ -22,12 +22,20 @@ public class InsertMoney extends Processing {
     public String run(Payload payload) throws SQLException, JSONException {
         System.out.println("[알림]: CMD 코드 - insertMoney");
 
-        ArrayList<JSONObject> jsonArray = new ArrayList<>();
+        JSONArray tmp = (JSONArray)payload.get();
         JSONObject jo = new JSONObject();
+        int priceid = 1;
+        String corrections = "0000|1|300|4";
+
+        System.out.println(tmp);
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
         PreparedStatement ppst = conn.prepareStatement("CALL EXE_MONEY(?, ?, ?, ?, ?)");
-        ppst.setString(1, (String)classification.getValue(2));
+        ppst.setString(1, "SET"); // SET | GET
+        ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
+        ppst.setInt(3, priceid);    // 1 ~ 5
+        ppst.setString(4, "MachineMoneyTbl");    // NULL 값 사용 가능
+        ppst.setString(5, corrections);    // NULL 값 사용 가능
         ResultSet rs = ppst.executeQuery();
 
         // 결과 처리
@@ -39,13 +47,12 @@ public class InsertMoney extends Processing {
                 String data = rs.getMetaData().getColumnLabel(i);
                 jsonData.put(data, rs.getString(i));
             }
-            // System.out.println(jsonType.toString());
-            jsonArray.add(jsonData);
+            tmp.put(jsonData);
 
-        }
-        //System.out.println(jsonArray.toString());
+        } // price, qty 속성값 사용
+
         jo.put("status", "success");
-        jo.put("data", jsonArray);
+        jo.put("data", tmp);
 
         classification.setValue(4, jo.toString());
         String receiveMSG = classification.toString();

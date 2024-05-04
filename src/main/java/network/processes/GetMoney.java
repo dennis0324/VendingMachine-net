@@ -13,28 +13,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Product extends Processing {
+public class GetMoney extends Processing {
 
-    public Product(Connection conn, String[] sqlData, Classification classification) {
+    public GetMoney(Connection conn, String[] sqlData, Classification classification) {
         super(conn, sqlData, classification);
     }
 
     @Override
     public String run(Payload payload) throws SQLException, JSONException {
-        System.out.println("[알림]: CMD 코드 - products");
+        System.out.println("[알림]: CMD 코드 - getMoney");
 
         // 변수
         JSONArray ja = new JSONArray();     // JSON 타입 배열
         JSONObject jo = new JSONObject();   // JSON 오브젝트
 
-        String data;                        // 문자열 변수
+        String data;                        // 반환 메세지
 
         PreparedStatement ppst;             // SQL 처리를 위한 오브젝트
         ResultSet rs;                       // SQL 데이터 테이블 결과값의 저장을 위한 변수
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        ppst = conn.prepareStatement("CALL GET_PRODUCT(?)");
-        ppst.setString(1, classification.getValue(2));
+        ppst = conn.prepareStatement("CALL EXE_MONEY(?, ?, ?, ?, ?)");
+        ppst.setString(1, "GET");
+        ppst.setString(2, classification.getValue(2));
+        ppst.setString(3, "%");
+        ppst.setString(4, "MachineMoneyTBL");
+        ppst.setString(5, null);
+
         rs = ppst.executeQuery();
 
         // 결과 처리
@@ -47,9 +52,9 @@ public class Product extends Processing {
             ja.put(jo); // JSON 배열에 JSON 오브젝트 삽입
         }
 
-        jo = new JSONObject();                // 초기화
-        jo.put("data", ja);                // 결과값 삽입
-        jo.put("status", "success");    // 상태값 삽입
+        jo = new JSONObject();              // 초기화
+        jo.put("data", ja);              // 결과값 삽입
+        jo.put("status", "success");  // 상태값 삽입
         classification.setValue(4, jo.toString());
         data = classification.toString();
         System.out.println("[전송]: " + data);

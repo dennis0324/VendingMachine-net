@@ -109,19 +109,6 @@ public class SocketControl {
                         // 데이터 구분자 분류
                         String[] classification = line.split("\\|");
                         Classification classData = new Classification(line);
-                        try {
-                            if (!addExec) { // 쿼리 추가 준비/실행
-                                preparedStatement = connection.prepareStatement("CALL ADD_MACHINE(?, ?)");
-                                preparedStatement.setString(1, classification[2]);
-                                preparedStatement.setString(2, "null");
-                                preparedStatement.executeQuery();
-                                addExec = true;
-
-                            }
-                        } catch (SQLIntegrityConstraintViolationException e) {
-                            System.out.println("[알림]: " + classification[2] + "번 머신 건너뜀");
-
-                        }
 
                         // CMD | HASH | ID | DATE | PAYLOAD
                         // 메세지 명령 분류 영역 , 비어있는 payload 일 경우 new JSONObject() 반환
@@ -129,7 +116,14 @@ public class SocketControl {
                             switch (classification[0]) {
                                 case "handshake": // 초기 연결 시 연결된 클라이언트에게 고유 번호 부여
                                     String tmp = String.format("%04d", counter++); // vending ID 부여
+
                                     Handshake handshake = new Handshake(classData, tmp);
+
+                                    preparedStatement = connection.prepareStatement("CALL ADD_MACHINE(?, ?)");
+                                    preparedStatement.setString(1, tmp);
+                                    preparedStatement.setString(2, "null");
+                                    preparedStatement.executeQuery();
+
                                     sendToClient(handshake.run(new Payload(classData.getValue(4))));
                                     break;
 
@@ -171,6 +165,11 @@ public class SocketControl {
                                 case "purchase": // 구매
                                     Purchase purchase = new Purchase(connection, sqlData, classData);
                                     sendToClient(purchase.run(new Payload(classData.getValue(4))));
+                                    break;
+
+                                case "getMoney": // EXE_MONEY(GET) 반환
+                                    GetMoney getMoney = new GetMoney(connection, sqlData, classData);
+                                    sendToClient(getMoney.run(new Payload(classData.getValue(4))));
                                     break;
 
                                 default: // 등록되지 않은 CMD 코드 예외 처리
