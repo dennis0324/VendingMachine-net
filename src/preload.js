@@ -43,9 +43,6 @@ contextBridge.exposeInMainWorld("machine", {
   vendingId: async () => {
     return await sendToMain("vendingId", "");
   },
-  getMoney: async () => {
-    return await sendToMain("getMoney", "");
-  },
   getConstantProduct: async () => {
     return await sendToMain("getConstantProduct", "");
   },
@@ -54,5 +51,8 @@ contextBridge.exposeInMainWorld("machine", {
   },
   insertMoney: async (moneyDto) => {
     return await sendToMain("insertMoney",moneyDto)
+  },
+  getMoney: async () => {
+    return await sendToMain("getMoney",{});
   }
 });
