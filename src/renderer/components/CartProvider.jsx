@@ -12,7 +12,7 @@ const testData = [
   {
     name: "커피",
     price: 500,
-    qty: 6,
+    qty: 0,
   },
   {
     name: "이온 음료",
@@ -106,7 +106,7 @@ function CartProvider({ children }) {
     removeFromCart,
     clearCart,
     purchaseCart,
-    setDisplayData
+    setDisplayData,
   }));
 
   return (
