@@ -24,6 +24,20 @@
  */
 
 /**
+ * @typedef ReturnPayload
+ * @type {Object}
+ *
+ * @property {string} status - the status of the operation
+ * @property {JSON | JSON[]} data - the message of the operation
  */
 
-export {};
+/**
+ * @typedef MoneyDto
+ * @type {Object}
+ *
+ * @property {int} use - the money to be used
+ * @property {int} price - the price of the product
+ */
+
+const typedef = "";
+export { typedef };

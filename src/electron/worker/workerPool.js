@@ -3,15 +3,7 @@ import Store from "electron-store";
 import crypto from "crypto";
 import { Worker } from "worker_threads";
 import { DataController } from "./DataController.mjs";
-
-/**
- * @typedef IPCDto
- * @property {string} hash
- * @property {string} cmd
- * @property {string} vendingId
- * @property {Date} date
- * @property {any} payload
- */
+import { timeStamp } from "../util/date.mjs";
 
 const store = new Store();
 const dataController = new DataController();
@@ -35,11 +27,11 @@ export function IpcPool() {
   }
 
   /**
-   *
+   * handle message from worker when message arrived
    */
   worker.on("message", (data) => {
-    console.log("parsed", data);
     const [cmd, hash, vendingId, _1, payload] = data.split("|");
+    // need to store vendingId for use universal
     if (cmd === "handshake") {
       store.set("vendingId", vendingId);
       return;
@@ -51,7 +43,6 @@ export function IpcPool() {
       console.log("[warn]: payload json parse failed");
       jsonPayload = payload;
     }
-    console.log("jsonPayload", jsonPayload);
     dataController.setData(hash, jsonPayload);
     dataController.remove(hash);
   });
@@ -61,65 +52,52 @@ export function IpcPool() {
       cmd: "handshake",
       hash: "",
       vendingId: "",
-      date: new Date().toISOString(),
+      date: timeStamp(),
       payload: {},
     };
     worker.postMessage(ipcDto);
   });
 
-  // 구매 요청
   /**
-   *
-   * @param {IPCDto} ipcDto
+   * commands collections
    */
-  ipcMain.handle("purchase", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    return postMess(ipcDto);
+  const cmdCollections = [
+    "purchase",
+    "getMoney",
+    "getConstantProduct",
+    "products",
+    "insertMoney",
+    "login",
+    "changePassword",
+  ];
+
+  /**
+   * commands that need crypto
+   */
+  const needCrypto = ["login", "changePassword"];
+
+  /**
+   * register handler for worker
+   */
+  cmdCollections.forEach((cmd) => {
+    ipcMain.handle(cmd, async (_, ipcDto) => {
+      ipcDto.vendingId = store.get("vendingId");
+      if (needCrypto.includes(cmd)) {
+        ipcDto.payload.password = crypto
+          .createHash("sha256")
+          .update(ipcDto.payload.password)
+          .digest("base64");
+      }
+      return postMess(ipcDto);
+    });
   });
 
-  // 로그인 요청
-  ipcMain.handle("login", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    ipcDto.payload.password = crypto
-      .createHash("sha256")
-      .update(ipcDto.payload.password)
-      .digest("base64");
-    return postMess(ipcDto);
-  });
-
-  // 비밀번호 변경
-  ipcMain.handle("changePassword", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    ipcDto.payload.password = crypto
-      .createHash("sha256")
-      .update(ipcDto.payload.password)
-      .digest("base64");
-    return postMess(ipcDto);
-  });
-
-  // 자판기 상품 ID
+  /**
+   * return vendingId
+   */
   ipcMain.handle("vendingId", async (_) => {
     return store.get("vendingId");
   });
 
-  ipcMain.handle("getMoney", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    return postMess(ipcDto);
-  });
-
-  ipcMain.handle("getConstantProduct", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    return postMess(ipcDto);
-  });
-
-  ipcMain.handle("products", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    return postMess(ipcDto);
-  });
-
-  ipcMain.handle("insertMoney", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId");
-    return postMess(ipcDto);
-  });
   return worker;
 }
