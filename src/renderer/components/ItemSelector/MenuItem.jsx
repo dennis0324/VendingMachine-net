@@ -1,10 +1,13 @@
 import * as React from "react";
 import ConfirmCount from "./ConfirmCount";
+import ConfirmNoItem from "./ContirmNoItem";
 import { addPopup, removePopup } from "../PopupManager";
 
 function MenuItem({ item }) {
-  function popupOn() {
-    addPopup(<ConfirmCount onPopupCancel={removePopup} item={item} />);
+  function popupOn(itemCount) {
+    if (itemCount == 0)
+      addPopup(<ConfirmNoItem onPopupCancel={removePopup} item={item} />);
+    else addPopup(<ConfirmCount onPopupCancel={removePopup} item={item} />);
   }
   return (
     <>
@@ -14,8 +17,11 @@ function MenuItem({ item }) {
         </span>
         <span className="lg:text-2xl mb-3">{item.price}원</span>
         <p
-          className="lg:text-2xl text-nowrap bg-gray-400 rounded-lg px-3 py-1 mb-5 cursor-pointer"
-          onClick={popupOn}
+          className={
+            "lg:text-2xl text-nowrap rounded-lg px-3 py-1 mb-5 bg-gray-400 " +
+            (item.qty == 0 ? "cursor-not-allowed" : "cursor-pointer")
+          }
+          onClick={(_) => popupOn(item.qty)}
         >
           담기
         </p>
