@@ -4,6 +4,9 @@ import IconHelper from "./IconHelper";
 import Close from "../icons/close.svg";
 import { removePopup } from "./PopupManager";
 function ChangePasswordForm() {
+  async function submit() {
+    window.machine.changePassword();
+  }
   return (
     <div className="md:w-[50vw] md:h-[70vh] h-screen w-screen bg-white shadow-lg rounded-lg flex flex-col">
       <div className="flex flex-row-reverse">
@@ -17,7 +20,7 @@ function ChangePasswordForm() {
           <input className="mb-1 rounded-lg" />
           <span>비밀번호 재입력</span>
           <input className="mb-3 rounded-lg" />
-          <ButtonCompo />
+          <ButtonCompo onClick={submit} />
         </div>
       </div>
     </div>
