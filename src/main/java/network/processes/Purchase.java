@@ -13,6 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.*;
+
 public class Purchase extends Processing {
 
     public Purchase(Connection conn, String[] sqlData, Classification classification) {
@@ -24,90 +26,100 @@ public class Purchase extends Processing {
         System.out.println("[알림]: CMD 코드 - purchase");
 
         // 변수
-        PreparedStatement ppst;                             // SQL 처리를 위한 오브젝트
-        ResultSet rs;                                       // SQL 데이터 테이블 결과값의 저장을 위한 변수
+        ResultSet rs;                                                     // SQL 데이터 테이블 결과값의 저장을 위한 변수
+        JSONArray requestOrder = (JSONArray)payload.get();                                // payload 의 JSON ARRAY 타입 데이터 저장 변수
+        String currVendingID = classification.getValue(2);                          // 현재 작업 중인 자판기 ID
+        String currTimeStamp = classification.getValue(3);                          // 현재 작업 중인 자판기 동작 시간
+        String[] productOrder = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
+        String[] MoneyOrder = {"id", "priceid", "price", "qty"};                          // JSON Object 키값 정렬 순서(money)
+        StringBuilder concatProduct = new StringBuilder();                                // 쿼리문에 사용할 value data 변수
+        int payment = 0;
 
-        JSONArray list  = new JSONArray();                  // 제품 리스트를 저장할 JSON ARRAY
-        JSONArray arr   = (JSONArray)payload.get();         // payload 의 JSON ARRAY 타입 데이터 저장 변수
-        JSONObject obj1 = new JSONObject();                 // JSON OBJECT 임시 변수
-        JSONObject obj2 = new JSONObject();                 // JSON OBJECT 임시 변수
+        // 구매 전 DB 에서 제품 리스트 불러오기
+        rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
 
-        String currVendingID = classification.getValue(2); // 현재 작업 중인 자판기 ID
-        String tmp, receiveMSG;                             // 임시 변수, 반환 메세지
-
-        // 구매 전 제품 리스트 확보
-        ppst = conn.prepareStatement("CALL GET_PRODUCT(?)");
-        ppst.setString(1, currVendingID);
-        rs = ppst.executeQuery();
-
-        // 제품 리스트를 배열에 저장
+        // 요청 사항과 테이블 데이터 비교 후 쿼리에 보낼 value data 작성
         while (rs.next()) { // 각 행에서 모든 열의 데이터를 가져와서 출력
-            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                tmp = rs.getMetaData().getColumnLabel(i);
-                obj1.put(tmp, rs.getString(i));
+
+            // 변수
+            ArrayList<String> productInfoTmp = new ArrayList<>();  // value data
+            String tmpPID = rs.getString("productId");  // product id
+            int tmpQty = rs.getInt("qty");              // qty
+            JSONObject tmpJSON = new JSONObject();                 // JSON temp
+
+            for(int i = 0; i < requestOrder.length(); i++) { // JSON 배열에 저장된 구매 목록과 제품 테이블 비교
+
+                // JSON 배열에서 비교할 JSON Object 추출
+                JSONObject compareTarget = (JSONObject) requestOrder.get(i);
+
+                Iterator keys = compareTarget.keys();
+                while(keys.hasNext()) {
+                    String key = (String)keys.next();
+                    tmpJSON.put(key, compareTarget.getString(key));
+                } // Iterator 타입 배열에 비교할 JSON Object 의 key 값을 삽입
+                for(String s : productOrder) productInfoTmp.add((String)tmpJSON.get(s));
+                // ArrayList를 JsonOrder 값에 맞게 정렬
+
+                if(!Objects.equals(compareTarget.getString("productId"), tmpPID))  continue;
+                // 서로의 productID 값이 다를 경우 continue
+
+                if(compareTarget.getInt("qty") > tmpQty) {
+                    return returnSeq("[경고]: 주문 대응 불가 - 재고 부족(" + compareTarget.getString("name") + ")\"", "deny");
+                } else { // 요청한 제품의 개수가 DB 에서 보유한 제품 개수보다 많을 경우 실패
+                    payment += compareTarget.getInt("qty") * compareTarget.getInt("price");
+                    productInfoTmp.set(4, String.valueOf(tmpQty - compareTarget.getInt("qty")));
+                } // 제품 테이블의 수량에서 요청한 제품의 개수만큼 차감
+
+                concatProduct.append(String.join("|", productInfoTmp)); // 속성값 별 구분자 추가
+                concatProduct.append("=");                                      // 요청 제품 별 구분자 추가
             }
-            list.put(obj1);
         }
-
-        // System.out.println(arr); // 디버그
-        obj1 = new JSONObject();    // 초기화
-
-        // 구매를 요청한 제품의 ID가 현재 제공되는 제품의 정보와 일치한지 비교
-        for(int i = 0; i < list.length(); i++) {                                // 입고된 제품 리스트 반복 비교
-            obj1 = (JSONObject) list.get(i);
-            for(int j = 0; j < arr.length(); j++) {                             // 구매 요청된 제품 리스트 반복 비교
-                obj2 = (JSONObject) arr.get(j);
-                if(obj1.get("productId") == obj2.get("productId")) {            // 동일 제품 ID일 경우
-                    System.out.println("pass id");
-                    if(obj1.get("name") == obj2.get("name")) {                  // 같은 제품인지 (change 에 의한 제품 변경 고려)
-                        System.out.println("pass name");
-                        if(obj1.getInt("qty") >= obj2.getInt("qty")) {    // 제품 발주량과 재고량 비교 후, 쿼리 작성 및 실행
-                            System.out.println("pass qty");
-                            try { // cmd, vending id, product id, tbl name, value data
-                                tmp = currVendingID + "|" +    // 테이블 수정 사항 작성 예시: 0000|1|고급 커피|700|3|6
-                                      obj2.get("productId") + "|" +
-                                      obj2.get("name") + "|" +
-                                      obj2.get("price") + "|" +
-                                      ((int)obj1.get("qty") - (int)obj2.get("qty")) + "|" + // 재고량에서 발주량만큼 차감
-                                      obj2.get("qty_limit");
-
-                                System.out.println(tmp); // 디버그
-
-                                ppst = conn.prepareStatement("CALL EXE_PRODUCT(?, ?, ?, ?, ?)");
-                                ppst.setString(1, "SET");                    // SET | GET
-                                ppst.setString(2, currVendingID);               // vending ID
-                                ppst.setInt   (3, (int)obj1.get("productId"));  // 1 ~ 6
-                                ppst.setString(4, "MachineItemTbl");         // item table
-                                ppst.setString(5, tmp);                         // corrections
-                                ppst.executeQuery();
-                                
-                            } catch (SQLException e) {
-                                System.out.println("[에러]: 쿼리 적용 실패");
-                            }
-                        } else { // 발주량이 재고량보다 많을 경우
-                            System.out.println("[경고]: 주문 대응 불가 - 재고 부족[" + obj1.get("name") + "]");
-                        }
-                    } else {    // 입고된 제품 ID의 제품명과 요청한 제품 ID의 제품명이 다를 경우
-                        System.out.println("[경고: 주문 대응 불가 - 제품 불일치[요청 제품:" + obj2.get("name") + ", 실제 제품: " + obj1.get("name") + "]");
-                    }
+        concatProduct.deleteCharAt(concatProduct.length()-1);             // 마지막 제품 구분자 삭제
+        
+        try { // 물건 판매 전 보유 잔액 확인 후 차감
+            rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?)", "SPE", currVendingID, "NULL", "NULL");
+            while(rs.next()) {
+                if(rs.getInt("price") < payment)
+                    return returnSeq("[경고]: 주문 대응 불가 - 금액 부족("+ (payment - rs.getInt("price")) +"원 부족)", "deny");
+                else {
+                    String valueData = rs.getString("id") + "|" + currVendingID + "|" + payment;
+                    exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?)", "SET", currVendingID, "NULL", valueData);
                 }
             }
-            obj1 = new JSONObject();
-            obj2 = new JSONObject();
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return returnSeq("[에러]: 쿼리 실행 실패", "error");
         }
-        
+
+        try { // 화페 차감 후 물건 차감 쿼리 실행
+            exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "SUB", currVendingID, currTimeStamp, "NULL", String.valueOf(concatProduct));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return returnSeq("[에러]: 쿼리 실행 실패", "error");
+        }
         // 결과 처리
-        obj2.put("status", "success");
-        obj2.put("data", new JSONObject());
-
-        classification.setValue(4, obj2.toString());
-        receiveMSG = classification.toString();
-        System.out.println("[전송]: " + receiveMSG);
-
-        return receiveMSG;
+        return returnSeq("", "success");
     }
+
+    ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement(query);
+        for(int i=0; i<str.length; i++){
+            ps.setString(i+1, str[i]);
+        }
+        return ps.executeQuery();
+    } // 쿼리 실행 및 결과 반환 함수
+
+    String returnSeq(String errMSG, String type) throws JSONException {
+        System.out.println(errMSG);
+
+        JSONObject obj = new JSONObject();
+        obj.put("status", type);
+        obj.put("data", new JSONObject());
+
+        classification.setValue(4, obj.toString());
+        String msg = classification.toString();
+        System.out.println("[전송]: " + msg);
+
+        return msg;
+    } // 리턴 메세지 출력 및 반환
 }
-
-
-//            obj1.put("status", "error");
-//            obj1.put("data", new JSONObject());

@@ -30,12 +30,11 @@ public class InsertMoney extends Processing {
         System.out.println(tmp);
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        PreparedStatement ppst = conn.prepareStatement("CALL EXE_MONEY(?, ?, ?, ?, ?)");
+        PreparedStatement ppst = conn.prepareStatement("CALL MACHINE_MONEY(?, ?, ?, ?)");
         ppst.setString(1, "SET"); // SET | GET
         ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
         ppst.setInt(3, priceid);    // 1 ~ 5
-        ppst.setString(4, "MachineMoneyTbl");    // NULL 값 사용 가능
-        ppst.setString(5, corrections);    // NULL 값 사용 가능
+        ppst.setString(4, corrections);    // NULL 값 사용 가능
         ResultSet rs = ppst.executeQuery();
 
         // 결과 처리

@@ -24,7 +24,7 @@ public class Login extends Processing {
         ResultSet rs;                       // SQL 데이터 테이블 결과값의 저장을 위한 변수
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        ppst = conn.prepareStatement("CALL GET_LOGIN_INFO(?)");
+        ppst = conn.prepareStatement("CALL USER_LOGININFO_GET(?)");
         ppst.setString(1, sqlData[3]);
         rs = ppst.executeQuery();
 

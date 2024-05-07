@@ -27,7 +27,7 @@ public class SocketControl {
             String[] sqlData = getConfig(); // 외부 파일에서 DB 서버 로그인 정보 불러오기
             try { // 서버 시작 후 DB 연결 및 DB 초기화 시퀀스 진행
                 Connection firstConn = DriverManager.getConnection(sqlData[0], sqlData[1], sqlData[2]);
-                PreparedStatement ps = firstConn.prepareStatement("CALL REMOVE_ALL_MACHINE()");
+                PreparedStatement ps = firstConn.prepareStatement("CALL MACHINE_REMOVE_ALL()");
                 ps.executeQuery();
                 System.out.println("[알림]: 서버 초기화");
 
@@ -119,7 +119,7 @@ public class SocketControl {
 
                                     Handshake handshake = new Handshake(classData, tmp);
 
-                                    preparedStatement = connection.prepareStatement("CALL ADD_MACHINE(?, ?)");
+                                    preparedStatement = connection.prepareStatement("CALL MACHINE_INIT(?, ?)");
                                     preparedStatement.setString(1, tmp);
                                     preparedStatement.setString(2, "null");
                                     preparedStatement.executeQuery();
