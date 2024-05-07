@@ -66,17 +66,11 @@ parentPort.on("message", (data) => {
     case "getMoney":
     case "products":
     case "getConstantProduct":
+    case "changePassword":
     case "quit":
     case "insertMoney":
-      payload = createTcpDTO(data);
-      client.write(payload);
-      break;
     case "purchase":
-      payload = createTcpDTO(data);
-      client.write(payload);
-      break;
     case "login":
-      console.log("worker:", data);
       payload = createTcpDTO(data);
       client.write(payload);
       break;
