@@ -44,16 +44,15 @@ export function IpcPool() {
       store.set("vendingId", vendingId);
       return;
     }
-    let jsonPayload = '';
-    try{
+    let jsonPayload = "";
+    try {
       jsonPayload = JSON.parse(payload);
-    }
-    catch(e){
-      console.log('[warn]: payload json parse failed');
+    } catch (e) {
+      console.log("[warn]: payload json parse failed");
       jsonPayload = payload;
     }
-    console.log("jsonPayload",jsonPayload);
-    dataController.setData(hash,jsonPayload);
+    console.log("jsonPayload", jsonPayload);
+    dataController.setData(hash, jsonPayload);
     dataController.remove(hash);
   });
 
@@ -74,12 +73,13 @@ export function IpcPool() {
    * @param {IPCDto} ipcDto
    */
   ipcMain.handle("purchase", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId")
+    ipcDto.vendingId = store.get("vendingId");
     return postMess(ipcDto);
   });
 
   // 로그인 요청
   ipcMain.handle("login", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId");
     ipcDto.payload.password = crypto
       .createHash("sha256")
       .update(ipcDto.payload.password)
@@ -88,7 +88,14 @@ export function IpcPool() {
   });
 
   // 비밀번호 변경
-  ipcMain.handle("changePassword", async (_, ipcDto) => {});
+  ipcMain.handle("changePassword", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId");
+    ipcDto.payload.password = crypto
+      .createHash("sha256")
+      .update(ipcDto.payload.password)
+      .digest("base64");
+    return postMess(ipcDto);
+  });
 
   // 자판기 상품 ID
   ipcMain.handle("vendingId", async (_) => {
@@ -96,23 +103,23 @@ export function IpcPool() {
   });
 
   ipcMain.handle("getMoney", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId")
+    ipcDto.vendingId = store.get("vendingId");
     return postMess(ipcDto);
   });
 
   ipcMain.handle("getConstantProduct", async (_, ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId")
+    ipcDto.vendingId = store.get("vendingId");
     return postMess(ipcDto);
   });
 
-  ipcMain.handle("products",async (_,ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId")
+  ipcMain.handle("products", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId");
     return postMess(ipcDto);
-  })
+  });
 
-  ipcMain.handle("insertMoney",async (_,ipcDto) => {
-    ipcDto.vendingId = store.get("vendingId")
+  ipcMain.handle("insertMoney", async (_, ipcDto) => {
+    ipcDto.vendingId = store.get("vendingId");
     return postMess(ipcDto);
-  })
+  });
   return worker;
 }
