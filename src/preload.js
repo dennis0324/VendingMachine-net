@@ -21,8 +21,8 @@ async function sendToMain(cmd, data) {
   const payload = {
     hash: "",
     cmd,
-    vendingId:"",
-    date: date.toISOString(),
+    vendingId: "",
+    date: date.toISOString().slice(0, 19).replace("T", " "),
     payload: data,
   };
 
@@ -32,6 +32,9 @@ async function sendToMain(cmd, data) {
 contextBridge.exposeInMainWorld("machine", {
   sendCredentials: (id, pass) => {},
   login: async (id, pass) => {
+    return await sendToMain("login", { id, password: pass });
+  },
+  changePassword: async (id, pass) => {
     return await sendToMain("login", { id, password: pass });
   },
   /**
@@ -47,12 +50,12 @@ contextBridge.exposeInMainWorld("machine", {
     return await sendToMain("getConstantProduct", "");
   },
   getProducts: async () => {
-    return await sendToMain("products",{});
+    return await sendToMain("products", {});
   },
   insertMoney: async (moneyDto) => {
-    return await sendToMain("insertMoney",moneyDto)
+    return await sendToMain("insertMoney", moneyDto);
   },
   getMoney: async () => {
-    return await sendToMain("getMoney",{});
-  }
+    return await sendToMain("getMoney", {});
+  },
 });
