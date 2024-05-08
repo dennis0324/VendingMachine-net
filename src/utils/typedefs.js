@@ -39,5 +39,5 @@
  * @property {int} price - the price of the product
  */
 
-const typedef = "";
-export { typedef };
+// @ts-ignore
+module.exports = {};
