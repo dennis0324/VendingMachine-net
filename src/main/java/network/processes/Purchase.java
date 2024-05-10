@@ -32,7 +32,7 @@ public class Purchase extends Processing {
         String currTimeStamp   = classification.getValue(3);                         // 현재 작업 중인 자판기 동작 시간
         String[] productOrder  = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
         StringBuilder concatProduct = new StringBuilder();                                 // 쿼리문에 사용할 value data 변수
-        int payment = 0;
+        int payment = 0; // 지불 금액
 
         // 구매 전 DB 에서 제품 리스트 불러오기
         rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
@@ -49,8 +49,7 @@ public class Purchase extends Processing {
             for(int i = 0; i < requestOrder.length(); i++) { // JSON 배열에 저장된 구매 목록과 제품 테이블 비교
 
                 // JSON 배열에서 비교할 JSON Object 추출
-                JSONObject compareTarget = (JSONObject) requestOrder.get(i);
-
+                JSONObject compareTarget = requestOrder.getJSONObject(i);
                 Iterator keys = compareTarget.keys();
                 while(keys.hasNext()) {
                     String key = (String)keys.next();
@@ -97,7 +96,7 @@ public class Purchase extends Processing {
             return returnSeq("[에러]: 쿼리 실행 실패", "error");
         }
         // 결과 처리
-        return returnSeq("", "success");
+        return returnSeq("[알림]: 처리 중", "success");
     }
 
     ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {

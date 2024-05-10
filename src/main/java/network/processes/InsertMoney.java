@@ -24,47 +24,29 @@ public class InsertMoney extends Processing {
         System.out.println("[알림]: CMD 코드 - insertMoney");
 
         // 변수
-        ResultSet rs;                                                     //
+        ResultSet rs;                                                     // SQL 데이터 테이블 결과값의 저장을 위한 변수
         JSONArray insertedMoney = (JSONArray)payload.get();               // 삽입된 화페 정보
-        JSONArray certainMoney  = new JSONArray();                        // 보유 중인 화페 정보
         String currVendingID    = classification.getValue(2);       // 현재 작업 중인 자판기 ID
-        String currTimeStamp    = classification.getValue(3);       // 현재 작업 중인 자판기 동작 시간
-        int[] paperOrder        = {10, 50, 100, 500, 1000};               // 화페 단위 정렬 순서
-        int total = 0;
-        
-        System.out.println(insertedMoney); // 디버그
-        //        {"use":5,"price":10},
-        //        {"use":0,"price":50},
-        //        {"use":0,"price":100},
-        //        {"use":0,"price":500},
-        //        {"use":0,"price":1000}
+        StringBuilder concatMoney = new StringBuilder();                  // value data
 
-        // 돈 삽입 전, 기존 삽입된 화페 정보 호출 및 저장
-        rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
-        while (rs.next()) {
-            JSONObject j = new JSONObject();
-            // 각 행에서 모든 열의 데이터를 가져와서 출력
-            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String s = rs.getMetaData().getColumnLabel(i);
-                j.put(s, rs.getString(i));
-            }
-            certainMoney.put(j); // JSON 배열에 JSON 오브젝트 삽입
-        }
-
-        // 입력된 화페 처리
+        // 쿼리에 사용할 value data 작성
         for (int i = 0; i < insertedMoney.length(); i++) {
-            if(insertedMoney.getJSONObject(i).getInt("use") != 0) { // 삽입된 화페의 총액 계산
-                total += insertedMoney.getJSONObject(i).getInt("use") * insertedMoney.getJSONObject(i).getInt("price");
+            int stored = insertedMoney.getJSONObject(i).getInt("use");
+            if(stored != 0) {
+                concatMoney.append(stored).append("|");
+            } else {
+                concatMoney.append("|");
             }
+        } concatMoney.deleteCharAt(concatMoney.length()-1); // 마지막 구분자 삭제
 
+        try { // 쿼리 실행
+            exeQuery(conn, "CALL MACHINE_MONEY_INSERT(?, ?)", currVendingID, String.valueOf(concatMoney));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return returnSeq("[에러]: 쿼리 실행 실패", "error");
+        } // 오류 처리
 
-        }
-
-        // 현재 화페 보유액 변경
-        exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?", "SET", currVendingID, currTimeStamp, "NULL", (rs.getString("id") + "|" + currVendingID + "|" + total));
-        
-        // 결과 처리
-        return returnSeq("", "success");
+        return returnSeq("[알림]: 처리 중", "success"); // 결과 처리
     }
 
     ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
