@@ -3,6 +3,7 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,41 +23,69 @@ public class InsertMoney extends Processing {
     public String run(Payload payload) throws SQLException, JSONException {
         System.out.println("[알림]: CMD 코드 - insertMoney");
 
-        JSONArray tmp = (JSONArray)payload.get();
-        JSONObject jo = new JSONObject();
-        int priceid = 1;
-        String corrections = "0000|1|300|4";
+        // 변수
+        ResultSet rs;                                                     //
+        JSONArray insertedMoney = (JSONArray)payload.get();               // 삽입된 화페 정보
+        JSONArray certainMoney  = new JSONArray();                        // 보유 중인 화페 정보
+        String currVendingID    = classification.getValue(2);       // 현재 작업 중인 자판기 ID
+        String currTimeStamp    = classification.getValue(3);       // 현재 작업 중인 자판기 동작 시간
+        int[] paperOrder        = {10, 50, 100, 500, 1000};               // 화페 단위 정렬 순서
+        int total = 0;
+        
+        System.out.println(insertedMoney); // 디버그
+        //        {"use":5,"price":10},
+        //        {"use":0,"price":50},
+        //        {"use":0,"price":100},
+        //        {"use":0,"price":500},
+        //        {"use":0,"price":1000}
 
-        System.out.println(tmp);
-
-        // 쿼리 준비 및 실행 그리고 결과 가져오기
-        PreparedStatement ppst = conn.prepareStatement("CALL MACHINE_MONEY(?, ?, ?, ?)");
-        ppst.setString(1, "SET"); // SET | GET
-        ppst.setString(2, (String) classification.getValue(2)); // 0000 ~
-        ppst.setInt(3, priceid);    // 1 ~ 5
-        ppst.setString(4, corrections);    // NULL 값 사용 가능
-        ResultSet rs = ppst.executeQuery();
-
-        // 결과 처리
+        // 돈 삽입 전, 기존 삽입된 화페 정보 호출 및 저장
+        rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
         while (rs.next()) {
+            JSONObject j = new JSONObject();
             // 각 행에서 모든 열의 데이터를 가져와서 출력
-            JSONObject jsonData = new JSONObject();
-
             for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String data = rs.getMetaData().getColumnLabel(i);
-                jsonData.put(data, rs.getString(i));
+                String s = rs.getMetaData().getColumnLabel(i);
+                j.put(s, rs.getString(i));
             }
-            tmp.put(jsonData);
+            certainMoney.put(j); // JSON 배열에 JSON 오브젝트 삽입
+        }
 
-        } // price, qty 속성값 사용
+        // 입력된 화페 처리
+        for (int i = 0; i < insertedMoney.length(); i++) {
+            if(insertedMoney.getJSONObject(i).getInt("use") != 0) { // 삽입된 화페의 총액 계산
+                total += insertedMoney.getJSONObject(i).getInt("use") * insertedMoney.getJSONObject(i).getInt("price");
+            }
 
-        jo.put("status", "success");
-        jo.put("data", tmp);
 
-        classification.setValue(4, jo.toString());
-        String receiveMSG = classification.toString();
-        System.out.println("[전송]: " + receiveMSG);
+        }
 
-        return receiveMSG;
+        // 현재 화페 보유액 변경
+        exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?", "SET", currVendingID, currTimeStamp, "NULL", (rs.getString("id") + "|" + currVendingID + "|" + total));
+        
+        // 결과 처리
+        return returnSeq("", "success");
     }
+
+    ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement(query);
+        for(int i=0; i<str.length; i++){
+            ps.setString(i+1, str[i]);
+        }
+        return ps.executeQuery();
+    } // 쿼리 실행 및 결과 반환 함수
+
+    String returnSeq(String errMSG, String type) throws JSONException {
+        System.out.println(errMSG);
+
+        JSONObject obj = new JSONObject();
+        obj.put("status", type);
+        obj.put("data", new JSONObject());
+
+        classification.setValue(4, obj.toString());
+        String msg = classification.toString();
+        System.out.println("[전송]: " + msg);
+
+        return msg;
+    } // 리턴 메세지 출력 및 반환
 }

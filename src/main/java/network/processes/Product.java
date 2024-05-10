@@ -33,11 +33,12 @@ public class Product extends Processing {
         ResultSet rs;                       // SQL 데이터 테이블 결과값의 저장을 위한 변수
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
-        ppst = conn.prepareStatement("CALL MACHINE_PRODUCT(?, ?, ?, ?)");
+        ppst = conn.prepareStatement("CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)");
         ppst.setString(1, "GET");
         ppst.setString(2, classification.getValue(2));
-        ppst.setString(3, "%");
-        ppst.setString(4, "");
+        ppst.setString(3, classification.getValue(3));
+        ppst.setString(4, "%");
+        ppst.setString(5, "NULL");
         rs = ppst.executeQuery();
 
         // 결과 처리

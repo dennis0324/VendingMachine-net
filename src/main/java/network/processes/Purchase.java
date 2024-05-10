@@ -26,13 +26,12 @@ public class Purchase extends Processing {
         System.out.println("[알림]: CMD 코드 - purchase");
 
         // 변수
-        ResultSet rs;                                                     // SQL 데이터 테이블 결과값의 저장을 위한 변수
-        JSONArray requestOrder = (JSONArray)payload.get();                                // payload 의 JSON ARRAY 타입 데이터 저장 변수
-        String currVendingID = classification.getValue(2);                          // 현재 작업 중인 자판기 ID
-        String currTimeStamp = classification.getValue(3);                          // 현재 작업 중인 자판기 동작 시간
-        String[] productOrder = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
-        String[] MoneyOrder = {"id", "priceid", "price", "qty"};                          // JSON Object 키값 정렬 순서(money)
-        StringBuilder concatProduct = new StringBuilder();                                // 쿼리문에 사용할 value data 변수
+        ResultSet rs;                                                                      // SQL 데이터 테이블 결과값의 저장을 위한 변수
+        JSONArray requestOrder = (JSONArray)payload.get();                                 // payload 의 JSON ARRAY 타입 데이터 저장 변수
+        String currVendingID   = classification.getValue(2);                         // 현재 작업 중인 자판기 ID
+        String currTimeStamp   = classification.getValue(3);                         // 현재 작업 중인 자판기 동작 시간
+        String[] productOrder  = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
+        StringBuilder concatProduct = new StringBuilder();                                 // 쿼리문에 사용할 value data 변수
         int payment = 0;
 
         // 구매 전 DB 에서 제품 리스트 불러오기
@@ -45,7 +44,7 @@ public class Purchase extends Processing {
             ArrayList<String> productInfoTmp = new ArrayList<>();  // value data
             String tmpPID = rs.getString("productId");  // product id
             int tmpQty = rs.getInt("qty");              // qty
-            JSONObject tmpJSON = new JSONObject();                 // JSON temp
+            JSONObject tmpJson = new JSONObject();                 // JSON temp
 
             for(int i = 0; i < requestOrder.length(); i++) { // JSON 배열에 저장된 구매 목록과 제품 테이블 비교
 
@@ -55,9 +54,10 @@ public class Purchase extends Processing {
                 Iterator keys = compareTarget.keys();
                 while(keys.hasNext()) {
                     String key = (String)keys.next();
-                    tmpJSON.put(key, compareTarget.getString(key));
+                    tmpJson.put(key, compareTarget.getString(key));
                 } // Iterator 타입 배열에 비교할 JSON Object 의 key 값을 삽입
-                for(String s : productOrder) productInfoTmp.add((String)tmpJSON.get(s));
+
+                for(String s : productOrder) productInfoTmp.add((String)tmpJson.get(s));
                 // ArrayList를 JsonOrder 값에 맞게 정렬
 
                 if(!Objects.equals(compareTarget.getString("productId"), tmpPID))  continue;
@@ -77,13 +77,12 @@ public class Purchase extends Processing {
         concatProduct.deleteCharAt(concatProduct.length()-1);             // 마지막 제품 구분자 삭제
         
         try { // 물건 판매 전 보유 잔액 확인 후 차감
-            rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?)", "SPE", currVendingID, "NULL", "NULL");
+            rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SPE", currVendingID, currTimeStamp,"NULL", "NULL");
             while(rs.next()) {
-                if(rs.getInt("price") < payment)
-                    return returnSeq("[경고]: 주문 대응 불가 - 금액 부족("+ (payment - rs.getInt("price")) +"원 부족)", "deny");
-                else {
-                    String valueData = rs.getString("id") + "|" + currVendingID + "|" + payment;
-                    exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?)", "SET", currVendingID, "NULL", valueData);
+                if(rs.getInt("price") < payment) {
+                    return returnSeq("[경고]: 주문 대응 불가 - 금액 부족(" + (payment - rs.getInt("price")) + "원 부족)", "deny");
+                } else {
+                    exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SET", currVendingID, currTimeStamp,"NULL", (rs.getString("id") + "|" + currVendingID + "|" + payment));
                 }
             }
         } catch(SQLException e) {

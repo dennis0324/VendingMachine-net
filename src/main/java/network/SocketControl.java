@@ -132,10 +132,10 @@ public class SocketControl {
                                     sendToClient(product.run(new Payload(classData.getValue(4))));
                                     break;
 
-                                case "supply": // 자판기 제품 재고 보급
-                                    Supply supply = new Supply(connection, sqlData, classData);
-                                    sendToClient(supply.run(new Payload(classData.getValue(4))));
-                                    break;
+//                                case "supply": // 자판기 제품 재고 보급 // 사용 여부 판단 안됨(비활성화)
+//                                    Supply supply = new Supply(connection, sqlData, classData);
+//                                    sendToClient(supply.run(new Payload(classData.getValue(4))));
+//                                    break;
 
                                 case "change": // 자판기 제품 목록 및 재고 변경(운영자 전용)
                                     Change change = new Change(connection, sqlData, classData);
