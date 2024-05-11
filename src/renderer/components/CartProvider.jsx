@@ -5,34 +5,46 @@ export const VendingMContext = createContext();
 // TODO: 이거 서버로 옮겨야 됨
 const testData = [
   {
+    id: 1,
     name: "물",
     price: 450,
     qty: 6,
+    qty_limit: "6",
   },
   {
+    id: 2,
     name: "커피",
     price: 500,
     qty: 0,
+    qty_limit: "6",
   },
   {
+    id: 3,
     name: "이온 음료",
     price: 550,
     qty: 6,
+    qty_limit: "6",
   },
   {
+    id: 4,
     name: "고급 커피",
     price: 700,
     qty: 6,
+    qty_limit: "6",
   },
   {
+    id: 5,
     name: "탄산 음료",
     price: 750,
     qty: 6,
+    qty_limit: "6",
   },
   {
+    id: 6,
     name: "특화 음료",
     price: 800,
     qty: 6,
+    qty_limit: "6",
   },
 ];
 function CartProvider({ children }) {

@@ -28,6 +28,14 @@ const testData = [
 function SaleManager() {
   const [moneyData, setMoneyData] = useState(testData);
   function sendGetMoney() {}
+  function collectMoneyAll() {
+    window.machine.collectMoney(
+      Array.from({ length: moneyData.length }, (_, i) => i + 1),
+    );
+  }
+  function collectMoney(priceIndex) {
+    window.machine.collectMoney([priceIndex]);
+  }
   return (
     <section className="col-span-2 h-full flex flex-col justify-around">
       {/* <button onClick={sendGetMoney}>test</button> */}
@@ -38,17 +46,24 @@ function SaleManager() {
             key={"saleItem-" + idx}
           >
             <span className="text-center">{item.price}원</span>
+
             <input
               disabled={true}
               defaultValue={`${item.qty}개`}
               className="text-right mx-1"
             />
             {/* <span className="text-center">{item.qty}개</span> */}
-            <button className="bg-red-400 rounded-lg p-0.5"> 수금 </button>
+            <button
+              className="bg-red-400 rounded-lg p-0.5"
+              onClick={(e) => collectMoney(idx + 1)}
+            >
+              {" "}
+              수금{" "}
+            </button>
           </div>
         );
       })}
-      <ButtonCompo message="모두 수금" />
+      <ButtonCompo message="모두 수금" onClick={collectMoneyAll} />
     </section>
   );
 }

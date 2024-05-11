@@ -11,6 +11,22 @@ function ProductManager({ className }) {
   const combineClass = [className, predefinedClass].join(" ");
   const [editing, setEditing] = useState(false);
   const { displayData } = useContext(VendingMContext);
+  const [changedProduct, setChangedProduct] = useState(
+    Array.from({ length: displayData.length }, (_) => ({})),
+  );
+
+  function commitChange() {
+    console.debug("commit");
+  }
+
+  function fillProductAll() {
+    console.debug("fill all product");
+  }
+
+  function changeProduct(index, key, value) {
+    changedProduct[index][key] = value;
+    setChangedProduct([...changedProduct]);
+  }
 
   return (
     <section className={combineClass}>
@@ -18,6 +34,8 @@ function ProductManager({ className }) {
         <ProductItem
           product={item}
           editing={editing}
+          // fillProduct={fillProduct}
+          changeProduct={changeProduct}
           key={"ProcutItem-" + idx}
         />
       ))}
@@ -26,6 +44,10 @@ function ProductManager({ className }) {
           <SelectCompo
             onRight={() => {
               setEditing(false);
+            }}
+            onLeft={() => {
+              setEditing(false);
+              commitChange();
             }}
           />
         ) : (
@@ -39,7 +61,7 @@ function ProductManager({ className }) {
         <ButtonCompo
           message="모두 채우기"
           onClick={() => {
-            setEditing(true);
+            fillProductAll();
           }}
           color="bg-red-400"
         />
