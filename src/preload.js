@@ -91,4 +91,21 @@ contextBridge.exposeInMainWorld("machine", {
   getMoney: async () => {
     return await sendToMain("getMoney", {});
   },
+  /**
+   * send collectMoney ID requeste to server
+   *
+   * @param {number[]} moneyIDs
+   * @return {Promise<types.ReturnPayload>}
+   */
+  collectMoney: async (moneyIDs) => {
+    return await sendToMain("collectMoney", moneyIDs);
+  },
+  /**
+   * send change ID request to server
+   *
+   * @return {Promise<types.ReturnPayload>}
+   */
+  change: async () => {
+    return await sendToMain("change", {});
+  },
 });

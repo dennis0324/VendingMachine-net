@@ -69,6 +69,7 @@ export function IpcPool() {
     "insertMoney",
     "login",
     "changePassword",
+    "collectMoney",
   ];
 
   /**
