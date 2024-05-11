@@ -5,6 +5,7 @@
 | cmd | hash | vendingId | date | payload |
 | --- | ---- | --------- | ---- | ------- |
 |     |      |           |      |         |
+
 - cmd: 각 실행 명령어
 - hash: date + cmd + vendingId 합친 hash값(소켓 분류 목적)
 - vendingId : 서버측에서 지정해준 id
@@ -12,6 +13,7 @@
 - payload: 전송 데이터
 
 ## \<class\> productDto 구조
+
 ```json
 {
 	name:string,
@@ -19,12 +21,15 @@
 	qty:number
 }
 ```
+
 ## Socket Cmd 목록
+
 cmd에 기본적으로 아무것도 적혀 있지 않은 내용은 클라이언트 -> 서버 -> 클라이언트로 다시 돌아오는 형태이다.
 
 `x` : 데이터 없음
 `-`: 코드에 의해서 알아서 넣어지는 임의 값
 `boardcast`: 연결되어 있는 모든 소켓에게 보내는 신호
+
 ### 1.`handshake` (서버 구현 완료)
 
 | cmd       | hash | payload | date | vendingId |
@@ -33,26 +38,29 @@ cmd에 기본적으로 아무것도 적혀 있지 않은 내용은 클라이언�
 
 #### return
 
-| cmd       | hash | vendingId | date | payload |
-| --------- | ---- | --------- | ---- | ------- |
-| handshake | -    | -         | -    | x       |
-ex)
-`handshake|66590df4e101c556c20608fd20c1ddf80c474324|vendingmc-1|`
+| cmd       | hash                                     | vendingId | date | payload |
+| --------- | ---------------------------------------- | --------- | ---- | ------- |
+| handshake | -                                        | -         | -    | x       |
+| handshake | 66590df4e101c556c20608fd20c1ddf80c474324 | 0000      |      |         |
 
 ### 2.`products`
+
 | cmd      | hash | vendingId | date | payload |
 | -------- | ---- | --------- | ---- | ------- |
 | products | -    | -         | -    | x       |
+
 #### return
-| cmd      | hash | vendingId | date | payload |
-| -------- | ---- | --------- | ---- | ------- |
-| products | -    | -         | -    | 아래 참조   |
+
+| cmd      | hash | vendingId | date | payload   |
+| -------- | ---- | --------- | ---- | --------- |
+| products | -    | -         | -    | 아래 참조 |
+
 ```json
 {
+	status:"success|error|deny",
 	data:Array<proaductDto>
 }
 ```
-
 
 ### 3.`supply`
 
@@ -60,30 +68,41 @@ ex)
 | ------ | ---- | --------- | ---- | ------- |
 | supply | -    | -         | -    | x       |
 
+```json
+[{name:string}]
+```
+
 #### return
-| cmd    | hash | vendingId | date | payload |
-| ------ | ---- | --------- | ---- | ------- |
-| supply | -    | -         | -    | 아래 참조   |
+
+| cmd    | hash | vendingId | date | payload   |
+| ------ | ---- | --------- | ---- | --------- |
+| supply | -    | -         | -    | 아래 참조 |
+
 ```json
 {
-	status:"success|error|deny",
-	data:""
+  "status": "success|error|deny",
+  "data": ""
 }
 ```
+
 ### 4.`change`(admin)
 
-| cmd    | hash | vendingId | date | payload |
-| ------ | ---- | --------- | ---- | ------- |
-| supply | -    | -         | -    | 아래참조    |
+| cmd    | hash | vendingId | date | payload  |
+| ------ | ---- | --------- | ---- | -------- |
+| supply | -    | -         | -    | 아래참조 |
+
 ```json
 {
 	productDto[]
 }
 ```
+
 #### return
-| cmd    | hash | vendingId | date | payload |
-| ------ | ---- | --------- | ---- | ------- |
-| change | -    | -         | -    | 아래 참조   |
+
+| cmd    | hash | vendingId | date | payload   |
+| ------ | ---- | --------- | ---- | --------- |
+| change | -    | -         | -    | 아래 참조 |
+
 ```json
 {
 	status:"success|error|deny",
@@ -95,26 +114,30 @@ ex)
 	]
 }
 ```
+
 ### 5.`insertMoney`
 
-| cmd         | hash | vendingId | date | payload |
-| ----------- | ---- | --------- | ---- | ------- |
-| insertMoney | -    | -         | -    | 아래 참조   |
+| cmd         | hash | vendingId | date | payload   |
+| ----------- | ---- | --------- | ---- | --------- |
+| insertMoney | -    | -         | -    | 아래 참조 |
+
 ```json
 {
 	price:number,
 	qty:number
 }
 ```
+
 #### return
-| cmd         | hash | vendingId | date | payload |
-| ----------- | ---- | --------- | ---- | ------- |
-| insertMoney | -    | -         | -    | 아래 참조   |
+
+| cmd         | hash | vendingId | date | payload   |
+| ----------- | ---- | --------- | ---- | --------- |
+| insertMoney | -    | -         | -    | 아래 참조 |
 
 ```json
 {
-	status:"success|error|deny",
-	data:""
+  "status": "success|error|deny",
+  "data": ""
 }
 ```
 
@@ -125,9 +148,10 @@ ex)
 | retrieveMoney | -    | -         | -    | x       |
 
 #### return
-| cmd           | hash | vendingId | date | payload |
-| ------------- | ---- | --------- | ---- | ------- |
-| retrieveMoney | -    | -         | -    | 아래 참조   |
+
+| cmd           | hash | vendingId | date | payload   |
+| ------------- | ---- | --------- | ---- | --------- |
+| retrieveMoney | -    | -         | -    | 아래 참조 |
 
 ```json
 {
@@ -143,24 +167,29 @@ ex)
 
 ### 7.`login`
 
-| cmd   | hash | vendingId | date | payload |
-| ----- | ---- | --------- | ---- | ------- |
-| login | -    | -         | -    | 아래 참조   |
+| cmd   | hash | vendingId | date | payload   |
+| ----- | ---- | --------- | ---- | --------- |
+| login | -    | -         | -    | 아래 참조 |
+
 ```json
 {
 	id:string,
 	password:string
 }
 ```
+
 note) password는 sha256로 암호화되고 base64로 코딩되어 보내집니다.
+
 #### return
-| cmd   | hash | vendingId | date | payload |
-| ----- | ---- | --------- | ---- | ------- |
-| login | -    | -         | -    | 아래 참조   |
+
+| cmd   | hash | vendingId | date | payload   |
+| ----- | ---- | --------- | ---- | --------- |
+| login | -    | -         | -    | 아래 참조 |
+
 ```json
 {
-	status:"success|error|deny",
-	data:""
+  "status": "success|error|deny",
+  "data": ""
 }
 ```
 
@@ -170,77 +199,139 @@ note) password는 sha256로 암호화되고 base64로 코딩되어 보내집니�
 | ------------ | ---- | --------- | ---- | ------- |
 | collectMoney | -    | -         | -    | x       |
 
-
 #### return
-| cmd          | hash | vendingId | date | payload |
-| ------------ | ---- | --------- | ---- | ------- |
-| collectMoney | -    | -         | -    | 아래 참조   |
+
+| cmd          | hash | vendingId | date | payload   |
+| ------------ | ---- | --------- | ---- | --------- |
+| collectMoney | -    | -         | -    | 아래 참조 |
 
 ```json
 {
-	status:"success|error|deny",
-	data:""
+  "status": "success|error|deny",
+  "data": ""
 }
 ```
 
+### 9..`purchase`
 
+| cmd      | hash | vendingId | date | payload   |
+| -------- | ---- | --------- | ---- | --------- |
+| purchase | -    | -         | -    | 아래 참조 |
+
+```json
+productDTO[]
+```
+
+#### return
+
+| cmd      | hash | vendingId | date | payload   |
+| -------- | ---- | --------- | ---- | --------- |
+| purchase | -    | -         | -    | 아래 참조 |
+
+```json
+{
+  "status": "success|error|deny",
+  "data": ""
+}
+```
 
 # Table
+
 ## DB: VendingMachine
 
 ### TBL:
-- ConstandVarTb
-처음 자판기 초기화시에 사용할 데이터이다.
 
-| name  |     |     | 상품 이름    |
-| ----- | --- | --- | -------- |
-| price |     |     | 상품 가격    |
+- ConstandVarTb
+  처음 자판기 초기화시에 사용할 데이터이다.
+
+| name  |     |     | 상품 이름      |
+| ----- | --- | --- | -------------- |
+| price |     |     | 상품 가격      |
 | qty   |     |     | 상품 재고 개수 |
 
 - CredentialTbl
-사용자의 비밀번호와 아이디를 담고 있다.
+  사용자의 비밀번호와 아이디를 담고 있다.
 
-| idx      | seq,pk |     | 인덱스      |
-| -------- | ------ | --- | -------- |
-| id       | pk     |     | 사용자 아이디  |
+| idx      | seq,pk |     | 인덱스          |
+| -------- | ------ | --- | --------------- |
+| id       | pk     |     | 사용자 아이디   |
 | password |        |     | 사용자 비밀번호 |
 
 - MachineTbl
-자판기의 id와 이름을 담고 있다.
+  자판기의 id와 이름을 담고 있다.
 
-| id   | pk  |             | 자판기 ID |
-| ---- | --- | ----------- | ------ |
+| id   | pk  |             | 자판기 ID   |
+| ---- | --- | ----------- | ----------- |
 | name |     | default('') | 자판기 이름 |
 
 - MachineItemTbl
 
-| id    | pk,fk(MachineTbl) |     | 자판기 ID   |
-| ----- | ----------------- | --- | -------- |
-| name  |                   |     | 상품 이름    |
-| price |                   |     | 상품 가격    |
+| id    | pk,fk(MachineTbl) |     | 자판기 ID      |
+| ----- | ----------------- | --- | -------------- |
+| name  |                   |     | 상품 이름      |
+| price |                   |     | 상품 가격      |
 | qty   |                   |     | 상품 재고 개수 |
+
+- MachineMoneyTbl
+
+| id    | pk,fk(MachineTbl) |     | 자판기 ID |
+| ----- | ----------------- | --- | --------- |
+| price |                   |     | 가격      |
+| qty   |                   |     | 돈 잔량   |
 
 - VendingLogTbl
 
-| id      | pk,fk(MachineTbl) |     | 자판기 ID           |
-| ------- | ----------------- | --- | ---------------- |
+| id      | pk,fk(MachineTbl) |     | 자판기 ID               |
+| ------- | ----------------- | --- | ----------------------- |
 | code    |                   |     | 판매 / 재고 플래그(0/1) |
-| date    |                   |     | 구매 / 재고 기록 날짜    |
-| pdtName |                   |     | 상품 이름            |
-| qty     |                   |     | 수량               |
+| date    |                   |     | 구매 / 재고 기록 날짜   |
+| pdtName |                   |     | 상품 이름               |
+| qty     |                   |     | 수량                    |
 
+- MachineHistoryTbl
+
+```
+Constant:
+0 : 초기화
+1 : 판매
+2 : 보충
+3 : 수금
+```
+
+| id     | pk  |     | log ID    |
+| ------ | --- | --- | --------- |
+| time   |     |     | 로그 시간 |
+| opType |     |     | 로그 타입 |
+
+- MachineItemHistoryTbl
+
+| id        | fk  |     | log ID    |
+| --------- | --- | --- | --------- |
+| time      |     |     | 로그 시간 |
+| productid |     |     | 상품 ID   |
+| qty       |     |     | 상품 개수 |
+
+- MachineMoneyhistoryTbl
+
+판매 금액 기록
+
+| id        | fk  |     | log ID    |
+| --------- | --- | --- | --------- |
+| productid |     |     | 상품 ID   |
+| qty       |     |     | 상품 개수 |
+
+## DB: procedure
 
 # 전달 과정 및 내용
 
 App(renderer)
+
 - machine
-	- purchase
-	- login
+  - purchase
+  - login
 
-
-WoorkerPool       worker
+WoorkerPool worker
 ipcMain(data) -> worker.postMessage(data)
-
 
 worker
 send
