@@ -76,7 +76,7 @@ public class Purchase extends Processing {
         concatProduct.deleteCharAt(concatProduct.length()-1);             // 마지막 제품 구분자 삭제
         
         try { // 물건 판매 전 보유 잔액 확인 후 차감
-            rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SPE", currVendingID, currTimeStamp,"NULL", "NULL");
+            rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SPE", currVendingID, currTimeStamp, "NULL", "NULL");
             while(rs.next()) {
                 if(rs.getInt("price") < payment) {
                     return returnSeq("[경고]: 주문 대응 불가 - 금액 부족(" + (payment - rs.getInt("price")) + "원 부족)", "deny");
@@ -107,12 +107,12 @@ public class Purchase extends Processing {
         return ps.executeQuery();
     } // 쿼리 실행 및 결과 반환 함수
 
-    String returnSeq(String errMSG, String type) throws JSONException {
-        System.out.println(errMSG);
+    String returnSeq(String MSG, String type) throws JSONException {
+        System.out.println(MSG);
 
         JSONObject obj = new JSONObject();
-        obj.put("status", type);
         obj.put("data", new JSONObject());
+        obj.put("status", type);
 
         classification.setValue(4, obj.toString());
         String msg = classification.toString();

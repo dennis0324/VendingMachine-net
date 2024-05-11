@@ -3,6 +3,7 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,39 +21,45 @@ public class CollectMoney extends Processing {
 
     @Override
     public String run(Payload payload) throws SQLException, JSONException {
-        System.out.println("[알림]: CMD 코드 - products (admin only)");
+        System.out.println("[알림]: CMD 코드 - collectMoney (admin only)");
 
-        ArrayList<JSONObject> jsonArray = new ArrayList<>();
-        JSONObject jo = new JSONObject();
+        // 변수
+        String currVendingID = classification.getValue(2);            // 현재 작업 중인 자판기 ID
+        String currTimeStamp = classification.getValue(3);            // 현재 작업 중인 자판기 동작 시간
+        String[] moneyUnit   = {"10", "50", "100", "500", "1000"};          // 화폐 단위
         
-        
-        // 쿼리 준비 및 실행 그리고 결과 가져오기
-        PreparedStatement ppst = conn.prepareStatement("CALL EXE_MONEY(?, ?, ?, ?, ?)");
-        ppst.setString(1, sqlData[3]);
-        ppst.setString(2, (String)classification.getValue(2));
-        ResultSet rs = ppst.executeQuery();
-
-        // 결과 처리
-        while (rs.next()) {
-            // 각 행에서 모든 열의 데이터를 가져와서 출력
-            JSONObject jsonData = new JSONObject();
-
-            for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                String data = rs.getMetaData().getColumnLabel(i);
-                jsonData.put(data, rs.getString(i));
+        try { // 금고 초기화
+            for(int i = 0; i < 5; i++) {
+                String initMoneyQty = currVendingID + "|" + (i + 1) + "|" + moneyUnit[i] + "|10"; // value data
+                exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "ADD", currVendingID, currTimeStamp, "NULL", initMoneyQty);
             }
-            // System.out.println(jsonType.toString());
-            jsonArray.add(jsonData);
-
+        } catch (SQLException e) { // 예외 처리
+            e.printStackTrace();
+            return returnSeq("[알림]; 쿼리 실행 실패", "error");
         }
-        //System.out.println(jsonArray.toString());
-        jo.put("status", "success");
-        jo.put("data", jsonArray);
 
-        classification.setValue(4, jo.toString());
-        String receiveMSG = classification.toString();
-        System.out.println("[전송]: " + receiveMSG);
-
-        return receiveMSG;
+        return returnSeq("[알림]: 처리 중", "success");
     }
+
+    ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement(query);
+        for(int i=0; i<str.length; i++){
+            ps.setString(i+1, str[i]);
+        }
+        return ps.executeQuery();
+    } // 쿼리 실행 및 결과 반환 함수
+
+    String returnSeq(String MSG, String type) throws JSONException {
+        System.out.println(MSG);
+
+        JSONObject obj = new JSONObject();
+        obj.put("data", new JSONObject());
+        obj.put("status", type);
+
+        classification.setValue(4, obj.toString());
+        String msg = classification.toString();
+        System.out.println("[전송]: " + msg);
+
+        return msg;
+    } // 리턴 메세지 출력 및 반환
 }

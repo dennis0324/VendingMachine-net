@@ -24,7 +24,6 @@ public class InsertMoney extends Processing {
         System.out.println("[알림]: CMD 코드 - insertMoney");
 
         // 변수
-        ResultSet rs;                                                     // SQL 데이터 테이블 결과값의 저장을 위한 변수
         JSONArray insertedMoney = (JSONArray)payload.get();               // 삽입된 화페 정보
         String currVendingID    = classification.getValue(2);       // 현재 작업 중인 자판기 ID
         StringBuilder concatMoney = new StringBuilder();                  // value data
@@ -57,8 +56,8 @@ public class InsertMoney extends Processing {
         return ps.executeQuery();
     } // 쿼리 실행 및 결과 반환 함수
 
-    String returnSeq(String errMSG, String type) throws JSONException {
-        System.out.println(errMSG);
+    String returnSeq(String MSG, String type) throws JSONException {
+        System.out.println(MSG);
 
         JSONObject obj = new JSONObject();
         obj.put("status", type);
