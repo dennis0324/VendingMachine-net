@@ -22,7 +22,7 @@ function CartManager(props) {
   return (
     <>
       <container className={combineClass}>
-        <CartList right={"비우기"} onRight={removePopup} />
+        <CartList right={"비우기"} onRight={clearCart} />
       </container>
       <container className="max-sm:flex hidden h-12 bg-gray-100 flex-row w-full">
         <div className="flex flex-row flex-1 pl-3">
