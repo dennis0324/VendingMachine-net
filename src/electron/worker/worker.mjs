@@ -7,16 +7,22 @@ import dotenv from "dotenv";
 // load env
 dotenv.config();
 
+let HOST = process.env.HOST;
+let PORT = process.env.PORT;
+if (process.env.MODE === "development") {
+  HOST = process.env.DEV_HOST;
+  PORT = process.env.DEV_PORT;
+}
 // create tcp client
 let client = new net.Socket();
 
 // flag for unconnected state
 var intervalId = false;
-console.log(">>> worker start Host: ", process.env.HOST);
+console.log(">>> worker start Host: ", HOST);
 function tryConnect() {
   console.log(">>> trying to connect...");
   try {
-    client.connect(process.env.PORT, process.env.HOST);
+    client.connect(PORT, HOST);
   } catch (e) {
     tryConnectInterval();
   }
