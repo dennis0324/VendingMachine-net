@@ -14,7 +14,9 @@ const dataController = new DataController();
 export function IpcPool() {
   let worker;
   try {
-    worker = new Worker("./src/electron/worker/worker.mjs");
+    worker = new Worker("./src/electron/worker/worker.mjs", {
+      env: { MODE: process.env.MODE },
+    });
   } catch (e) {
     console.log(e);
   }
@@ -70,6 +72,7 @@ export function IpcPool() {
     "login",
     "changePassword",
     "collectMoney",
+    "retrieveMoney",
   ];
 
   /**
