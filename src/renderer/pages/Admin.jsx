@@ -52,7 +52,7 @@ function Admin() {
           <span>돌아가기</span>
         </IconHelper>
         <div className="flex">
-          <div className={login ? "" : "hidden"}>
+          <div className={"flex " + (login ? "" : "hidden")}>
             <IconHelper onClick={showChangePasswordPop}>
               <Key className="cursor-pointer" />
             </IconHelper>
