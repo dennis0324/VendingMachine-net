@@ -1,44 +1,24 @@
 import * as React from "react";
-import { useState } from "react";
+import { useContext } from "react";
 import ButtonCompo from "../ButtonCompo";
 
-const money = [10, 50, 100, 500, 1000];
-const testData = [
-  {
-    price: 10,
-    qty: 10,
-  },
-  {
-    price: 50,
-    qty: 10,
-  },
-  {
-    price: 100,
-    qty: 10,
-  },
-  {
-    price: 500,
-    qty: 10,
-  },
-  {
-    price: 1000,
-    qty: 10,
-  },
-];
+import { MoneyContext } from "../MoneyProvider";
+
 function SaleManager() {
-  const [moneyData, setMoneyData] = useState(testData);
-  function sendGetMoney() {}
+  const { moneyData, getMoney } = useContext(MoneyContext);
   function collectMoneyAll() {
     window.machine.collectMoney(
       Array.from({ length: moneyData.length }, (_, i) => i + 1),
     );
   }
-  function collectMoney(priceIndex) {
-    window.machine.collectMoney([priceIndex]);
+  async function collectMoney(priceIndex) {
+    const { status } = await window.machine.collectMoney([priceIndex]);
+    if (status === "success") {
+      getMoney();
+    }
   }
   return (
     <section className="col-span-2 h-full flex flex-col justify-around">
-      {/* <button onClick={sendGetMoney}>test</button> */}
       {moneyData.map((item, idx) => {
         return (
           <div
@@ -49,7 +29,7 @@ function SaleManager() {
 
             <input
               disabled={true}
-              defaultValue={`${item.qty}개`}
+              value={`${item.qty}개`}
               className="text-right mx-1"
             />
             {/* <span className="text-center">{item.qty}개</span> */}
