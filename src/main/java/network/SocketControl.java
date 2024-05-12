@@ -142,6 +142,11 @@ public class SocketControl {
                                     sendToClient(change.run(new Payload(classData.getValue(4))));
                                     break;
 
+                                case "changePassword": // 비밀번호 변경
+                                    ChangePassword changePassword = new ChangePassword(connection, sqlData, classData);
+                                    sendToClient(changePassword.run(new Payload(classData.getValue(4))));
+                                    break;
+
                                 case "insertMoney": // 화페 삽입
                                     InsertMoney insertMoney= new InsertMoney(connection, sqlData, classData);
                                     sendToClient(insertMoney.run(new Payload(classData.getValue(4))));
