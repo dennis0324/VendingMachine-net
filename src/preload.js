@@ -38,8 +38,8 @@ contextBridge.exposeInMainWorld("machine", {
    *
    * @return {Promise<types.ReturnPayload>}
    */
-  changePassword: async (id, pass) => {
-    return await sendToMain("login", { id, password: pass });
+  changePassword: async (pass) => {
+    return await sendToMain("changePassword", { password: pass });
   },
   /**
    * send purchase request to server
@@ -82,6 +82,15 @@ contextBridge.exposeInMainWorld("machine", {
    */
   insertMoney: async (moneyDto) => {
     return await sendToMain("insertMoney", moneyDto);
+  },
+  /**
+   * send retrieveMoney ID requeste to server
+   *
+   * @param {types.MoneyDto[]}
+   * @return {Promise<types.ReturnPayload>}
+   */
+  retrieveMoney: async () => {
+    return await sendToMain("retrieveMoney", {});
   },
   /**
    * send getVendingMachine ID requeste to server
