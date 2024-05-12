@@ -7,12 +7,14 @@ import { addPopup, removePopup, clearPopup } from "../PopupManager";
 import ItemSelItem from "./ItemSelItem";
 import SelectCompo from "../SelectCompo";
 import ButtonCompo from "../ButtonCompo";
-
 import ConfirmPurchase from "./ConfirmPurchase";
 import MoneySelector from "./MoneySelector";
+import ReturnPopup from "../ReturnPopup";
+
 import { TEXT } from "../../utils/constants";
+
 function List({ className = "", onRight, right }) {
-  const { total, cartData, purchaseCart, clearCart } =
+  const { total, cartData, purchaseCart, clearCart, getProducts } =
     useContext(VendingMContext);
   const predefinedClass = "flex flex-row h-fit m-2";
   const combineclass = [className, predefinedClass].join(" ");
@@ -21,9 +23,8 @@ function List({ className = "", onRight, right }) {
   // 해당 구매가 성공시에 카트의 모든 아이템을 비우고
   // 팝업창을 모두 닫는다.
   async function purchase() {
-    if (cartData.length == 0){
-      alert(TEXT.NOSELECT);
-      clearPopup();
+    if (cartData.length == 0) {
+      addPopup(<ReturnPopup msg={TEXT.NOSELECT} onClick={removePopup} />);
       return;
     }
     const t = await purchaseCart();
@@ -31,6 +32,7 @@ function List({ className = "", onRight, right }) {
       removePopup();
       clearCart();
       clearPopup();
+      getProducts();
     }
   }
 

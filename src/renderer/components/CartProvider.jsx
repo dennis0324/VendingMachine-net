@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createContext, useState, useMemo } from "react";
+import { createContext, useState, useMemo, useEffect } from "react";
 export const VendingMContext = createContext();
 
 // TODO: 이거 서버로 옮겨야 됨
@@ -50,7 +50,6 @@ const testData = [
 function CartProvider({ children }) {
   const [displayData, setDisplayData] = useState(testData);
   const [cartData, setCartData] = useState([]);
-  const [sellData, setSellData] = useState([]);
 
   /////////////////////////////////////////////////////////////////////////////
   ///////// 메소드 선언
@@ -78,11 +77,6 @@ function CartProvider({ children }) {
     if (find_item >= 0) {
       cartData[find_item].qty += count;
       setCartData([...cartData]);
-      const data = {
-        cmd: "purchase",
-        payload: cartData[find_item],
-      };
-      // window.machine.setCount(data);
 
       return false;
     }
@@ -109,16 +103,23 @@ function CartProvider({ children }) {
     return false;
   }
 
+  async function getProducts() {
+    const { status, data } = await window.machine.getProducts();
+    if (status === "success") setDisplayData(data);
+  }
+  useEffect(() => {
+    getProducts();
+  }, []);
+
   const vendingMProvideData = useMemo(() => ({
     displayData,
     cartData,
-    sellData,
     total,
     addToCart,
     removeFromCart,
     clearCart,
     purchaseCart,
-    setDisplayData,
+    getProducts,
   }));
 
   return (
