@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class Change extends Processing {
 
@@ -24,10 +25,55 @@ public class Change extends Processing {
         System.out.println("[알림]: CMD 코드 - change (Admin only)");
 
         // 변수
-        JSONArray changeInfo = (JSONArray)payload.get();    // 변경할 제품 정보 리스트
-        JSONArray returnData = new JSONArray();             // 클라이언트에게 반환할 payload 데이터
+        ResultSet rs;
+        JSONArray changeInfo  = (JSONArray)payload.get();            // 변경할 제품 정보 리스트
+        JSONArray returnData  = new JSONArray();                     // 클라이언트에게 반환할 payload 데이터
+        StringBuilder value   = new StringBuilder();                 // 쿼리에서 사용할 value data
+        String[] productOrder = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
+        String currVendingID  = classification.getValue(2);    //
+        String currTimeStamp  = classification.getValue(3);    //
 
-        // todo:: 먼저 변경할 대상을 검색하고 비교하는 연산 과정 필요
+        try { // 제품 테이블 내용 불러오기
+            rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
+        } catch (SQLException e) { // 예외 처리
+            e.printStackTrace();
+            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
+        }
+
+        while (rs.next()) {
+            // 변수
+            String productID = rs.getString("productId");
+            String[] tmpInfo = new String[productOrder.length];
+            JSONObject tmpJson = new JSONObject();
+            for (int i = 0; i < changeInfo.length(); i++) {
+                if (Objects.equals(changeInfo.getJSONObject(i).getString("productId"), productID)) {
+                    tmpInfo[0] = currVendingID;
+                    tmpInfo[1] = productID;
+                    tmpInfo[2] = changeInfo.getJSONObject(i).getString("name");
+                    tmpInfo[3] = changeInfo.getJSONObject(i).getString("price");
+                    tmpInfo[4] = changeInfo.getJSONObject(i).getString("qty");
+                    tmpInfo[5] = "6";
+
+                    for (int j = 0; j < tmpInfo.length; j++) {
+                        value.append(tmpInfo[j]).append("|");
+                        tmpJson.put(productOrder[j], tmpInfo[j]);
+                    }
+                    value.deleteCharAt(value.length()-1); // 마지막 제품 구분자 삭제
+                    value.append("=");
+                    returnData.put(tmpJson);
+                }
+            }
+        }
+        value.deleteCharAt(value.length()-1); // 마지막 제품 구분자 삭제
+
+        System.out.println(value); // 디버그
+
+        try { // 결과 처리
+            exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "ADD", currVendingID, currTimeStamp, "NULL", value.toString());
+        } catch (SQLException e) { // 예외 처리
+            e.printStackTrace();
+            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
+        }
 
         return returnSeq("[알림]: 처리 중", "success", returnData);
     }

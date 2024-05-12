@@ -41,9 +41,9 @@ public class Purchase extends Processing {
         while (rs.next()) { // 각 행에서 모든 열의 데이터를 가져와서 출력
 
             // 변수
-            String tmpPID = rs.getString("productId");  // product id
-            int tmpQty = rs.getInt("qty");              // qty
-            JSONObject tmpJson = new JSONObject();                 // JSON temp
+            String productId = rs.getString("productId");   // product id
+            int qty = rs.getInt("qty");                     // qty
+            JSONObject tmpJson = new JSONObject();                     // JSON temp
 
             for(int i = 0; i < requestOrder.length(); i++) { // JSON 배열에 저장된 구매 목록과 제품 테이블 비교
 
@@ -59,14 +59,14 @@ public class Purchase extends Processing {
                 for(String s : productOrder) productInfoTmp.add((String)tmpJson.get(s));
                 // ArrayList를 JsonOrder 값에 맞게 정렬
 
-                if(!Objects.equals(compareTarget.getString("productId"), tmpPID))  continue;
+                if(!Objects.equals(compareTarget.getString("productId"), productId))  continue;
                 // 서로의 productID 값이 다를 경우 continue
 
-                if(compareTarget.getInt("qty") > tmpQty) {
+                if(compareTarget.getInt("qty") > qty) {
                     return returnSeq("[경고]: 주문 대응 불가 - 재고 부족(" + compareTarget.getString("name") + ")\"", "deny");
                 } else { // 요청한 제품의 개수가 DB 에서 보유한 제품 개수보다 많을 경우 실패
                     payment += compareTarget.getInt("qty") * compareTarget.getInt("price");
-                    productInfoTmp.set(4, String.valueOf(tmpQty - compareTarget.getInt("qty")));
+                    productInfoTmp.set(4, String.valueOf(qty - compareTarget.getInt("qty")));
                 } // 제품 테이블의 수량에서 요청한 제품의 개수만큼 차감
 
                 concatProduct.append(String.join("|", productInfoTmp)); // 속성값 별 구분자 추가
