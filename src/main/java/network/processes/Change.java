@@ -26,7 +26,7 @@ public class Change extends Processing {
         // 변수
         JSONArray returnData = new JSONArray();             // 클라이언트에게 반환할 payload 데이터
 
-        // todo:: 먼저 보급할 대상을 검색하고 비교하는 연산 과정 필요
+        // todo:: 먼저 변경할 대상을 검색하고 비교하는 연산 과정 필요
 
         return returnSeq("[알림]: 처리 중", "success", returnData);
     }

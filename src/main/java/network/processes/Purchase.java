@@ -41,7 +41,6 @@ public class Purchase extends Processing {
         while (rs.next()) { // 각 행에서 모든 열의 데이터를 가져와서 출력
 
             // 변수
-            ArrayList<String> productInfoTmp = new ArrayList<>();  // value data
             String tmpPID = rs.getString("productId");  // product id
             int tmpQty = rs.getInt("qty");              // qty
             JSONObject tmpJson = new JSONObject();                 // JSON temp
@@ -49,6 +48,7 @@ public class Purchase extends Processing {
             for(int i = 0; i < requestOrder.length(); i++) { // JSON 배열에 저장된 구매 목록과 제품 테이블 비교
 
                 // JSON 배열에서 비교할 JSON Object 추출
+                ArrayList<String> productInfoTmp = new ArrayList<>();
                 JSONObject compareTarget = requestOrder.getJSONObject(i);
                 Iterator keys = compareTarget.keys();
                 while(keys.hasNext()) {
