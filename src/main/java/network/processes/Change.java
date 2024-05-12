@@ -43,8 +43,8 @@ public class Change extends Processing {
         System.out.println(MSG);
 
         JSONObject obj = new JSONObject();
-        obj.put("status", type);
         obj.put("data", arr);
+        obj.put("status", type);
 
         classification.setValue(4, obj.toString());
         String msg = classification.toString();

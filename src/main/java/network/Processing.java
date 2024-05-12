@@ -1,6 +1,5 @@
 package network;
 
-import network.Payload;
 import org.json.JSONException;
 
 import java.sql.Connection;
@@ -19,7 +18,7 @@ public abstract class Processing {
         this.classification = classification;
     }
 
-    public Processing(Classification classification, String counter) { // handshake
+    public Processing(Classification classification, String counter) { // no sql require version
         this.classification = classification;
         this.counter = counter;
     }

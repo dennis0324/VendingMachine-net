@@ -3,9 +3,14 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Login extends Processing {
 

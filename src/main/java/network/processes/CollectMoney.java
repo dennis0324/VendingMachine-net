@@ -3,7 +3,7 @@ package network.processes;
 import network.Classification;
 import network.Payload;
 import network.Processing;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class CollectMoney extends Processing {
 
