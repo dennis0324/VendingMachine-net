@@ -1,75 +1,47 @@
-import * as React from 'react';
-import SelectCompo from "../SelectCompo";
+import * as React from "react";
 import ButtonCompo from "../ButtonCompo";
-import { useMemo, useState } from "react";
+import { useContext } from "react";
 
-import { getCookie, setCookie } from "../../utils/cookies";
-import { removePopup } from "../PopupManager";
+import { removePopup, addPopup } from "../PopupManager";
+import { MoneyContext } from "../MoneyProvider";
 
-import { TEXT } from '../../utils/constants';
+import { TEXT } from "../../utils/constants";
+import ReturnPopup from "../ReturnPopup";
 
 const moneyOptions = [[10], [50], [100], [500], [1000, 5]];
-const LIMIT = 7000;
 function MoneySelector() {
-  let cookie = getCookie("money");
-
-  if (!cookie) {
-    cookie = Array.from({ length: 5 }, (_, i) => ({
-      use: 0,
-      realLimit: moneyOptions[i][1] || 0, //실제 제한 개수
-      price: moneyOptions[i][0],
-    }));
-    setCookie("money", cookie);
-  }
-
-  const [moneyCount, setMoneyCount] = useState(cookie);
-
-  // 투입한 동전의 개수를 증가시킨다.
-  function increase(index) {
-    const money = moneyCount.at(index);
-    if (money.realLimit != 0 && money.use >= money.realLimit) return;
-    if (total + money.price > LIMIT) return;
-    money.use += 1;
-    setMoneyCount([...moneyCount]);
-  }
-
-  // 거스름 반환
-  function clear() {
-    moneyCount.forEach((e) => (e.use = 0));
-    setMoneyCount([...moneyCount]);
-    setCookie("money", moneyCount);
-  }
+  const { moneyData, total, increaseMoney, clearMoney, getMoney } =
+    useContext(MoneyContext);
 
   // 저장시 사용되는 함수
-  function ReturnWithPaper() {
-    //TODO: 서버에서 잔돈 개수 구하고 받아오기
-    setCookie("money", moneyCount);
+  async function ReturnWithPaper() {
     removePopup();
+    const { status } = await window.machine.retrieveMoney();
+    if (status === "success")
+      addPopup(<ReturnPopup msg="잔돈을 반환합니다." onClick={removePopup} />);
+    else
+      addPopup(
+        <ReturnPopup msg="잔돈을 반환할 수 없습니다." onClick={removePopup} />,
+      );
+    getMoney();
   }
-  function ReturnWithoutPaper() {
-    setCookie("money", moneyCount);
-    removePopup();
-  }
+
   function confirm() {
-    const finded = moneyCount.filter(e => e.use > 0);
-    if(finded.length == 0) {
-      alert(TEXT.NOSELECT);
-      removePopup();
+    const finded = moneyData.filter((e) => e.use > 0);
+    removePopup();
+    if (finded.length == 0) {
+      // alert(TEXT.NOSELECT);
+      addPopup(<ReturnPopup msg={TEXT.NOSELECT} onClick={removePopup} />);
       return;
     }
-    window.machine.insertMoney(moneyCount.map(e => ({use:e.use,price:e.price})))
-    removePopup();
+    window.machine.insertMoney(
+      moneyData.map((e) => ({ use: e.use, price: e.price })),
+    );
+    clearMoney();
+    getMoney();
   }
 
   // total computed
-  const total = useMemo(() => {
-    const total = moneyCount.reduce((acc, cur, index) => {
-      acc += cur.price * cur.use;
-      return acc;
-    }, 0);
-
-    return total;
-  }, [moneyCount]);
 
   return (
     <div>
@@ -80,17 +52,24 @@ function MoneySelector() {
       <section>
         <div className="grid grid-cols-3 items-center py-2">
           {moneyOptions.map((option, index) => (
-            <div className="items-center py-2 px-2" key={'moneyOptions-'+index}>
+            <div
+              className="items-center py-2 px-2"
+              key={"moneyOptions-" + index}
+            >
               <button
                 disabled={false}
                 className="bg-gray-300 p-2 rounded-lg w-full"
-                onClick={() => increase(index)}
+                onClick={() => increaseMoney(index)}
               >
                 {option[0]}원
               </button>
             </div>
           ))}
-          <ButtonCompo message='반환하기' onClick={clear} color='bg-red-400'/>
+          <ButtonCompo
+            message="반환하기"
+            onClick={ReturnWithPaper}
+            color="bg-red-400"
+          />
         </div>
       </section>
       <section className="grid">
