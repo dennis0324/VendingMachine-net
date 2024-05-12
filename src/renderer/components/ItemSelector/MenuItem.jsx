@@ -7,7 +7,10 @@ function MenuItem({ item }) {
   function popupOn(itemCount) {
     if (itemCount == 0)
       addPopup(<ConfirmNoItem onPopupCancel={removePopup} item={item} />);
-    else addPopup(<ConfirmCount onPopupCancel={removePopup} item={item} />);
+    else
+      addPopup(
+        <ConfirmCount qty={item.qty} onPopupCancel={removePopup} item={item} />,
+      );
   }
   return (
     <>
