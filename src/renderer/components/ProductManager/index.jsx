@@ -1,7 +1,6 @@
 import * as React from "react";
-const { useState } = React;
 import ProductItem from "./ProductItem";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { VendingMContext } from "../CartProvider";
 import ButtonCompo from "../ButtonCompo";
 import SelectCompo from "../SelectCompo";
@@ -11,9 +10,11 @@ function ProductManager({ className }) {
   const combineClass = [className, predefinedClass].join(" ");
   const [editing, setEditing] = useState(false);
   const { displayData } = useContext(VendingMContext);
-  const [changedProduct, setChangedProduct] = useState(
-    Array.from({ length: displayData.length }, (_) => ({})),
-  );
+  const [changedProduct, setChangedProduct] = useState([]);
+
+  useEffect(() => {
+    setChangedProduct(Array.from({ length: displayData.length }, (_) => ({})));
+  }, []);
 
   function commitChange() {
     console.debug("commit");
