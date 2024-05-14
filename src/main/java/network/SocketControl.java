@@ -177,6 +177,11 @@ public class SocketControl {
                                     sendToClient(getMoney.run(new Payload(classData.getValue(4))));
                                     break;
 
+                                case "getLogs":
+                                    GetLogs getLogs = new GetLogs(connection, sqlData, classData);
+                                    sendToClient(getLogs.run(new Payload(classData.getValue(4))));
+                                    break;
+
                                 default: // 등록되지 않은 CMD 코드 예외 처리
                                     System.out.println("[에러]: CMD 코드 - Unknown CMD Code");
                                     break;
