@@ -11,7 +11,7 @@ function Home() {
   return (
     <div className="App h-screen w-screen flex flex-col">
       <PopupManager />
-      <nav className="h-fit">
+      <nav className="h-fit mx-1">
         <button onClick={goToAdmin}>관리자 로그인</button>
       </nav>
       <div className="flex flex-1 flex-row max-sm:flex-col max-sm:py-0 justify-center items-center">

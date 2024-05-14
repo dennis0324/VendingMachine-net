@@ -5,7 +5,7 @@ import SaleManager from "../components/SaleManager";
 import PopupManager from "../components/PopupManager";
 import LoginForm from "../components/LoginForm";
 
-import ArrowBack from "../icons/arrowBack.svg";
+import ArrowBack from "../icons/arrowBackIos.svg";
 import IconHelper from "../components/IconHelper";
 import Terminal from "../icons/terminal.svg";
 import Logout from "../icons/logout.svg";
@@ -73,9 +73,9 @@ function Admin() {
     <div className="App h-screen w-screen flex flex-col">
       <PopupManager />
       <div className="flex items-center justify-between">
-        <IconHelper className="flex cursor-pointer" onClick={goToHome}>
+        <IconHelper className="flex cursor-pointer m-2" onClick={goToHome}>
           <ArrowBack />
-          <span>돌아가기</span>
+          {/* <span>돌아가기</span> */}
         </IconHelper>
         <div className="flex">
           <div className={"flex " + (login ? "" : "hidden")}>
