@@ -74,6 +74,7 @@ export function IpcPool() {
     "collectMoney",
     "retrieveMoney",
     "change",
+    "supply",
   ];
 
   /**

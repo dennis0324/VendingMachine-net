@@ -118,4 +118,13 @@ contextBridge.exposeInMainWorld("machine", {
   change: async (productDto) => {
     return await sendToMain("change", productDto);
   },
+  /**
+   * send supply ID request to server
+   *
+   * @param {number[]} moneyIDs
+   * @return {Promise<types.ReturnPayload>}
+   */
+  supply: async (productIDs) => {
+    return await sendToMain("supply", productIDs);
+  },
 });
