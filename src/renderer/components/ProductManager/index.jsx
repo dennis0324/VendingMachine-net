@@ -41,7 +41,7 @@ function ProductManager({ className }) {
   }
 
   async function supplyAll() {
-    const { status } = window.machine.supply(
+    const { status } = await window.machine.supply(
       Array.from({ length: displayData.length }, (_, i) => i + 1),
     );
 
