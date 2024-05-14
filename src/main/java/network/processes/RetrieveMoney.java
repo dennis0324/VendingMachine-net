@@ -64,7 +64,7 @@ public class RetrieveMoney extends Processing {
         // 거스를 화폐의 개수 확인 및 반환 데이터 생성
         for(int i = 4; i >= 0; i--) {
             if(remainMoney / moneyUnit[i] > currMoneyInfo.getJSONObject(i).getInt("qty")) {
-                retrieveMoneyUnitQty[i] = (remainMoney / moneyUnit[i]) - currMoneyInfo.getJSONObject(i).getInt("qty");
+                retrieveMoneyUnitQty[i] = currMoneyInfo.getJSONObject(i).getInt("qty");
             } else {
                 retrieveMoneyUnitQty[i] = remainMoney / moneyUnit[i];
             }

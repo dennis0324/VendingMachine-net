@@ -27,16 +27,18 @@ public class GetMoney extends Processing {
         ResultSet rs;                                   // SQL 데이터 테이블 결과값의 저장을 위한 변수
         PreparedStatement ppst;                         // SQL 처리를 위한 오브젝트
         JSONArray moneyInfo = new JSONArray();          // JSON 타입 배열
+        boolean type = (boolean)payload.get("all");     // true >>> execute SPE
+        String currVendingID = classification.getValue(2);
+        String currTimeStamp = classification.getValue(3);
 
         // 쿼리 준비 및 실행 그리고 결과 가져오기
         try {
-            ppst = conn.prepareStatement("CALL MACHINE_MONEY(?, ?, ?, ?, ?)");
-            ppst.setString(1, "GET");
-            ppst.setString(2, classification.getValue(2));
-            ppst.setString(3, classification.getValue(3));
-            ppst.setString(4, "%");
-            ppst.setString(5, "NULL");
-            rs = ppst.executeQuery();
+            if (type) {
+                rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SPE", currVendingID, currTimeStamp, "NULL", "NULL");
+            } else {
+                rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
@@ -54,6 +56,14 @@ public class GetMoney extends Processing {
 
         return returnSeq("[알림]: 처리 중", "success", moneyInfo);
     }
+
+    ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement(query);
+        for(int i=0; i<str.length; i++){
+            ps.setString(i+1, str[i]);
+        }
+        return ps.executeQuery();
+    } // 쿼리 실행 및 결과 반환 함수
 
     String returnSeq(String MSG, String type, JSONArray arr) throws JSONException {
         System.out.println(MSG);
