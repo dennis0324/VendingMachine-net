@@ -6,10 +6,11 @@ import { MoneyContext } from "../MoneyProvider";
 
 function SaleManager() {
   const { moneyData, getMoney } = useContext(MoneyContext);
-  function collectMoneyAll() {
-    window.machine.collectMoney(
+  async function collectMoneyAll() {
+    const { status } = window.machine.collectMoney(
       Array.from({ length: moneyData.length }, (_, i) => i + 1),
     );
+    if (status === "success") getMoney();
   }
   async function collectMoney(priceIndex) {
     const { status } = await window.machine.collectMoney([priceIndex]);

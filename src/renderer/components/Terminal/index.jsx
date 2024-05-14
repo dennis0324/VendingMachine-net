@@ -35,6 +35,10 @@ function TerminalLog() {
   const [log, setLog] = React.useState(dummyData);
   return (
     <div className="w-[50vw] h-[70vh] bg-white shadow-lg rounded-lg">
+      <section className="flex justify-between">
+        <div className=""></div>
+        <div className="cursor-pointer m-0.5">자세히</div>
+      </section>
       {log.map((item) => (
         <div>
           <span>{item.date}</span>

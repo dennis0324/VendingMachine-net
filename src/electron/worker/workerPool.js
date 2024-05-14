@@ -73,6 +73,7 @@ export function IpcPool() {
     "changePassword",
     "collectMoney",
     "retrieveMoney",
+    "change",
   ];
 
   /**

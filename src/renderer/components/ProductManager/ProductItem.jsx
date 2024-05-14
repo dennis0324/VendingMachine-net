@@ -1,8 +1,12 @@
 import * as React from "react";
-import ButtonCompo from "../ButtonCompo";
-function ProductItem({ product, editing, changeProduct = () => {} }) {
-  const disabled = "bg-gray-200 cursor-not-allowed";
-  const abled = "bg-red-400";
+import { useRef } from "react";
+function ProductItem({
+  product,
+  editing,
+  changeProduct = () => {},
+  supply = () => {},
+}) {
+  const buttonRef = useRef(null);
 
   function checkNumeric(e) {
     console.log(e.key);
@@ -10,21 +14,28 @@ function ProductItem({ product, editing, changeProduct = () => {} }) {
       e.preventDefault();
   }
 
-  //TODO: 수금 관련 로직
   return (
     <div className="">
       <div className="bg-gray-300 rounded-lg p-2 m-2 col-span-5">
         <div className="bg-white rounded-lg p-1 flex justify-between my-1">
-          <h2>{product.name}</h2>
-          {/* <p>{product.price}원</p> */}
+          <input
+            className="h-6 w-20 text-left p-0.5 bg-transparent"
+            defaultValue={product.name}
+            disabled={!editing}
+            onChange={(e) =>
+              changeProduct(product.productId, "name", e.target.value)
+            }
+          />
           <span>
             <input
               className="h-6 w-10 text-right p-0.5 bg-transparent"
               defaultValue={product.price}
+              disabled={!editing}
               onKeyPress={(e) => checkNumeric(e)}
-              onChange={(e) =>
-                changeProduct(product.id, "price", e.target.value)
-              }
+              onChange={(e) => {
+                changeProduct(product.productId, "price", e.target.value);
+              }}
+              ref={buttonRef}
             />
             원
           </span>
@@ -34,16 +45,12 @@ function ProductItem({ product, editing, changeProduct = () => {} }) {
             <span>{"재고 :"}</span>
             <span>{product.qty}개</span>
           </div>
-          {editing && (
-            <button
-              className="bg-white rounded-lg p-0.5"
-              onClick={() =>
-                changeProduct(product.id, "qty", product.qty_limit)
-              }
-            >
-              채우기
-            </button>
-          )}
+          <button
+            className="bg-white rounded-lg py-0.5 px-2"
+            onClick={() => supply(product.productId)}
+          >
+            채우기
+          </button>
         </div>
       </div>
     </div>

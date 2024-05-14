@@ -4,39 +4,63 @@ import { useContext, useState, useEffect } from "react";
 import { VendingMContext } from "../CartProvider";
 import ButtonCompo from "../ButtonCompo";
 import SelectCompo from "../SelectCompo";
+import { MoneyContext } from "../MoneyProvider";
 
 function ProductManager({ className }) {
+  const { displayData, getProducts } = useContext(VendingMContext);
+
   const predefinedClass = "md:grid";
   const combineClass = [className, predefinedClass].join(" ");
+
   const [editing, setEditing] = useState(false);
-  const { displayData } = useContext(VendingMContext);
+  const [changedMoney, setChangedMoney] = useState([]);
   const [changedProduct, setChangedProduct] = useState([]);
 
-  useEffect(() => {
-    setChangedProduct(Array.from({ length: displayData.length }, (_) => ({})));
-  }, []);
-
-  function commitChange() {
+  async function commitChange() {
     console.debug("commit");
-  }
-
-  function fillProductAll() {
-    console.debug("fill all product");
+    // console.log({ money: changedMoney, product: changedProduct });
+    const { status } = await window.machine.change(changedProduct);
+    if (status == "success") {
+      getProducts();
+    }
   }
 
   function changeProduct(index, key, value) {
-    changedProduct[index][key] = value;
-    setChangedProduct([...changedProduct]);
+    let findDataIndex = changedProduct.findIndex((e) => e.productId === index);
+    console.log(findDataIndex, changedProduct, index, key, value);
+
+    if (findDataIndex !== -1) {
+      changedProduct[findDataIndex][key] = Number(value) || value;
+      setChangedProduct([...changedProduct]);
+    } else {
+      const findData = displayData.find((e) => e.productId === index);
+      findData[key] = Number(value) || value;
+      console.log(findData);
+      setChangedProduct([...changedProduct, findData]);
+    }
   }
 
+  async function supplyAll() {
+    const { status } = window.machine.supply(
+      Array.from({ length: displayData.length }, (_, i) => i + 1),
+    );
+
+    if (status === "success") getProducts();
+  }
+  async function supply(priceIndex) {
+    const { status } = await window.machine.supply([priceIndex]);
+
+    if (status === "success") getProducts();
+  }
   return (
     <section className={combineClass}>
       {displayData.map((item, idx) => (
         <ProductItem
           product={item}
           editing={editing}
-          // fillProduct={fillProduct}
+          itemId={idx}
           changeProduct={changeProduct}
+          supply={supply}
           key={"ProcutItem-" + idx}
         />
       ))}
@@ -62,7 +86,7 @@ function ProductManager({ className }) {
         <ButtonCompo
           message="모두 채우기"
           onClick={() => {
-            fillProductAll();
+            supplyAll();
           }}
           color="bg-red-400"
         />
