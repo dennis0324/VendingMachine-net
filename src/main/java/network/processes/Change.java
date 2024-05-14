@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import java.util.Objects;
 
 public class Change extends Processing {
@@ -26,8 +27,9 @@ public class Change extends Processing {
 
         // 변수
         ResultSet rs;
-        JSONArray changeInfo  = (JSONArray)payload.get();            // 변경할 제품 정보 리스트
-        JSONArray returnData  = new JSONArray();                     // 클라이언트에게 반환할 payload 데이터
+        JSONArray changeInfo  = (JSONArray)payload.get();            // 변경할 제품 정보
+        JSONObject concatData = new JSONObject();                    // 통합 반환 데이터
+        JSONArray beforeData  = new JSONArray();                     // 클라이언트에게 반환할 payload before 데이터
         StringBuilder value   = new StringBuilder();                 // 쿼리에서 사용할 value data
         String[] productOrder = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
         String currVendingID  = classification.getValue(2);    //
@@ -37,16 +39,22 @@ public class Change extends Processing {
             rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
         } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
-            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
+            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONObject());
         }
 
         while (rs.next()) {
             // 변수
             String productID = rs.getString("productId");
             String[] tmpInfo = new String[productOrder.length];
-            JSONObject tmpJson = new JSONObject();
             for (int i = 0; i < changeInfo.length(); i++) {
                 if (Objects.equals(changeInfo.getJSONObject(i).getString("productId"), productID)) {
+                    JSONObject obj = new JSONObject();
+                    // 각 행에서 모든 열의 데이터를 가져와서 출력
+                    for(int j = 1; j <= rs.getMetaData().getColumnCount(); j++) {
+                        obj.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+                    }
+                    beforeData.put(obj); // JSON before 배열에 JSON 오브젝트 삽입
+
                     tmpInfo[0] = currVendingID;
                     tmpInfo[1] = productID;
                     tmpInfo[2] = changeInfo.getJSONObject(i).getString("name");
@@ -54,13 +62,9 @@ public class Change extends Processing {
                     tmpInfo[4] = changeInfo.getJSONObject(i).getString("qty");
                     tmpInfo[5] = "6";
 
-                    for (int j = 0; j < tmpInfo.length; j++) {
-                        value.append(tmpInfo[j]).append("|");
-                        tmpJson.put(productOrder[j], tmpInfo[j]);
-                    }
+                    for (String s : tmpInfo) { value.append(s).append("|"); }
                     value.deleteCharAt(value.length()-1); // 마지막 제품 구분자 삭제
                     value.append("=");
-                    returnData.put(tmpJson);
                 }
             }
         }
@@ -72,10 +76,13 @@ public class Change extends Processing {
             exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "ADD", currVendingID, currTimeStamp, "NULL", value.toString());
         } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
-            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
+            return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONObject());
         }
 
-        return returnSeq("[알림]: 처리 중", "success", returnData);
+        concatData.put("before", beforeData);
+        concatData.put("after",changeInfo);
+
+        return returnSeq("[알림]: 처리 중", "success", concatData);
     }
 
     ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
@@ -86,12 +93,12 @@ public class Change extends Processing {
         return ps.executeQuery();
     } // 쿼리 실행 및 결과 반환 함수
 
-    String returnSeq(String MSG, String type, JSONArray arr) throws JSONException {
+    String returnSeq(String MSG, String type, JSONObject data) throws JSONException {
         System.out.println(MSG);
 
         JSONObject obj = new JSONObject();
-        obj.put("data", arr);
         obj.put("status", type);
+        obj.put("data", data);
 
         classification.setValue(4, obj.toString());
         String msg = classification.toString();

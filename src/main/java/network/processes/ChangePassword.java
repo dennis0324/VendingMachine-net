@@ -4,8 +4,9 @@ import network.Classification;
 import network.Payload;
 import network.Processing;
 
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,10 +24,10 @@ public class ChangePassword extends Processing {
         System.out.println("[알림]: CMD 코드 - changePassword");
 
         // 변수
-        JSONObject currPayload = (JSONObject)payload.get(); // 변경할 password 데이터
+        String newPassword = (String)payload.get("password");
 
         try {
-            exeQuery(conn, "CALL USER_PASSWORD_CHANGE(?, ?)", sqlData[1],currPayload.getString("password"));
+            exeQuery(conn, "CALL USER_PASSWORD_CHANGE(?, ?)", sqlData[1], newPassword);
         } catch (SQLException e) {
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error");
@@ -38,7 +39,7 @@ public class ChangePassword extends Processing {
     ResultSet exeQuery(Connection conn, String query, String ... str) throws SQLException {
         PreparedStatement ps = conn.prepareStatement(query);
         for(int i=0; i<str.length; i++){
-            ps.setString(i+1, str[i]);
+            ps.setString(i + 1, str[i]);
         }
         return ps.executeQuery();
     } // 쿼리 실행 및 결과 반환 함수
