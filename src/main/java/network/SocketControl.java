@@ -90,6 +90,7 @@ public class SocketControl {
 
             // MySQL 접속 정보
             String[] sqlData = getConfig();
+            String tmpMSG    = null;
             PreparedStatement preparedStatement = null;
             Connection connection = null;
 
@@ -179,7 +180,9 @@ public class SocketControl {
 
                                 case "getLogs":
                                     GetLogs getLogs = new GetLogs(connection, sqlData, classData);
-                                    sendToClient(getLogs.run(new Payload(classData.getValue(4))));
+                                    tmpMSG = getLogs.run(new Payload(classData.getValue(4)));
+                                    sendToClient("length|" + tmpMSG.length());
+                                    sendToClient(tmpMSG);
                                     break;
 
                                 default: // 등록되지 않은 CMD 코드 예외 처리
