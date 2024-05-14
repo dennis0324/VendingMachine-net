@@ -44,6 +44,15 @@ function List({ className = "", onRight, right }) {
     }
   }
 
+  function onConfirmPurchase() {
+    if (total <= 0) {
+      addPopup(<ReturnPopup msg={TEXT.NOSELECT} onClick={removePopup} />);
+      return;
+    }
+    if (payTotal <= total)
+      addPopup(<ConfirmPurchase onRight={removePopup} onLeft={purchase} />);
+  }
+
   return (
     <>
       <section className="flex-1">
@@ -59,13 +68,7 @@ function List({ className = "", onRight, right }) {
         <span className="flex-1 flex items-center">총 결제 금액</span>
         <span className="flex items-center">{total}원</span>
       </section>
-      <SelectCompo
-        onLeft={() =>
-          addPopup(<ConfirmPurchase onRight={removePopup} onLeft={purchase} />)
-        }
-        right={right}
-        onRight={onRight}
-      />
+      <SelectCompo onLeft={onConfirmPurchase} right={right} onRight={onRight} />
       <ButtonCompo
         message="돈 투입하기"
         onClick={() => addPopup(<MoneySelector />)}
