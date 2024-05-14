@@ -13,19 +13,28 @@ const moneyOptions = [[10], [50], [100], [500], [1000, 5]];
 function MoneySelector() {
   const { moneyData, total, increaseMoney, clearMoney, getMoney } =
     useContext(MoneyContext);
-  const { getRemain } = useContext(VendingMContext);
+  const { getRemain, payTotal } = useContext(VendingMContext);
 
   // 저장시 사용되는 함수
   async function ReturnWithPaper() {
     removePopup();
+    if (payTotal === 0) {
+      addPopup(
+        <ReturnPopup msg={TEXT.EMPTY_MONEYRETURN} onClick={removePopup} />,
+      );
+      return;
+    }
     const { status } = await window.machine.retrieveMoney();
     if (status === "success")
-      addPopup(<ReturnPopup msg="잔돈을 반환합니다." onClick={removePopup} />);
+      addPopup(
+        <ReturnPopup msg={TEXT.SUCCESS_MONEYRETURN} onClick={removePopup} />,
+      );
     else
       addPopup(
-        <ReturnPopup msg="잔돈을 반환할 수 없습니다." onClick={removePopup} />,
+        <ReturnPopup msg={TEXT.FAIL_MONEYRETURN} onClick={removePopup} />,
       );
     getMoney();
+    getRemain();
   }
 
   function confirm() {
