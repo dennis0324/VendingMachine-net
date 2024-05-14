@@ -4,7 +4,6 @@ import network.Classification;
 import network.Payload;
 import network.Processing;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -27,7 +26,7 @@ public class ChangePassword extends Processing {
         String newPassword = (String)payload.get("password");
 
         try {
-            exeQuery(conn, "CALL USER_PASSWORD_CHANGE(?, ?)", sqlData[1], newPassword);
+            exeQuery(conn, "CALL USER_PASSWORD_CHANGE(?, ?)", sqlData[3], newPassword);
         } catch (SQLException e) {
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error");

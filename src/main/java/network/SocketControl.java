@@ -162,6 +162,11 @@ public class SocketControl {
                                     sendToClient(collectMoney.run(new Payload(classData.getValue(4))));
                                     break;
 
+                                case "supplay":
+                                    Supply supply = new Supply(connection, sqlData, classData);
+                                    sendToClient(supply.run(new Payload(classData.getValue(4))));
+                                    break;
+
                                 case "purchase": // 구매
                                     Purchase purchase = new Purchase(connection, sqlData, classData);
                                     sendToClient(purchase.run(new Payload(classData.getValue(4))));
