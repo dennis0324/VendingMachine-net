@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import * as types from "../../utils/typedefs.js";
+import { v4 as uuidv4 } from "uuid";
 
 export class DataController {
   ipcHash = new Map();
@@ -11,8 +12,7 @@ export class DataController {
    * @return {string} hashValue
    */
   createHash(ipcDto) {
-    const joined = [ipcDto.cmd, ipcDto.vendingID, ipcDto.date].join("");
-    return crypto.createHash("sha1").update(joined).digest("hex");
+    return uuidv4();
   }
 
   /**

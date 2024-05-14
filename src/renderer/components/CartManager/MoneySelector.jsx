@@ -4,6 +4,7 @@ import { useContext } from "react";
 
 import { removePopup, addPopup } from "../PopupManager";
 import { MoneyContext } from "../MoneyProvider";
+import { VendingMContext } from "../CartProvider";
 
 import { TEXT } from "../../utils/constants";
 import ReturnPopup from "../ReturnPopup";
@@ -12,6 +13,7 @@ const moneyOptions = [[10], [50], [100], [500], [1000, 5]];
 function MoneySelector() {
   const { moneyData, total, increaseMoney, clearMoney, getMoney } =
     useContext(MoneyContext);
+  const { getRemain } = useContext(VendingMContext);
 
   // 저장시 사용되는 함수
   async function ReturnWithPaper() {
@@ -39,6 +41,7 @@ function MoneySelector() {
     );
     clearMoney();
     getMoney();
+    getRemain();
   }
 
   // total computed

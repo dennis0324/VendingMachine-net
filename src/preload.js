@@ -97,7 +97,7 @@ contextBridge.exposeInMainWorld("machine", {
    *
    * @return {Promise<types.ReturnPayload>}
    */
-  getMoney: async (getAll) => {
+  getMoney: async (getAll = false) => {
     return await sendToMain("getMoney", { all: getAll });
   },
   /**

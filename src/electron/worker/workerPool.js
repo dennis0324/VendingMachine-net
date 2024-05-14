@@ -33,6 +33,7 @@ export function IpcPool() {
    */
   worker.on("message", (data) => {
     const [cmd, hash, vendingId, _1, payload] = data.split("|");
+    console.log(payload);
     // need to store vendingId for use universal
     if (cmd === "handshake") {
       store.set("vendingId", vendingId);
@@ -43,7 +44,7 @@ export function IpcPool() {
       jsonPayload = JSON.parse(payload);
     } catch (e) {
       console.log("[warn]: payload json parse failed");
-      jsonPayload = payload;
+      jsonPayload = payload ?? "";
     }
     dataController.setData(hash, jsonPayload);
     dataController.remove(hash);

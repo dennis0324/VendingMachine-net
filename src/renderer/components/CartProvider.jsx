@@ -6,6 +6,7 @@ export const VendingMContext = createContext();
 function CartProvider({ children }) {
   const [displayData, setDisplayData] = useState([]);
   const [cartData, setCartData] = useState([]);
+  const [payTotal, setPayTotal] = useState(0);
 
   /////////////////////////////////////////////////////////////////////////////
   ///////// 메소드 선언
@@ -51,6 +52,11 @@ function CartProvider({ children }) {
     setCartData([]);
   }
 
+  async function getRemain() {
+    const { status, data } = await window.machine.getMoney(true);
+    if (status === "success") setPayTotal(Number(data[0].price));
+  }
+
   //purchase
   async function purchaseCart() {
     let a = await window.machine.purchase(cartData);
@@ -69,6 +75,7 @@ function CartProvider({ children }) {
     });
     if (status === "success") setDisplayData(data);
   }
+
   useEffect(() => {
     getProducts();
   }, []);
@@ -82,6 +89,8 @@ function CartProvider({ children }) {
     clearCart,
     purchaseCart,
     getProducts,
+    payTotal,
+    getRemain,
   }));
 
   return (
