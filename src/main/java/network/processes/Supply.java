@@ -36,7 +36,7 @@ public class Supply extends Processing {
         int[] result = extractNumbers(currPayload); // string to int array
 
         try { // DB 에서 Product TBL 정보 불러오기
-            rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?", "GET", currVendingID, currTimeStamp, "%", "NULL");
+            rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
         } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error");
@@ -62,8 +62,9 @@ public class Supply extends Processing {
                 valueData.append(currVendingID).append("|");
                 valueData.append(result[i]).append("|");
                 valueData.append(tmpJson.getString("name")).append("|");
-                valueData.append(tmpJson.getString("price")).append("|");
+                valueData.append(tmpJson.getString("price"));
                 valueData.append("|6|6");
+
                 exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "ADD", currVendingID, currTimeStamp, "NULL", String.valueOf(valueData));
             }
         } catch (SQLException e) { // 예외 처리
