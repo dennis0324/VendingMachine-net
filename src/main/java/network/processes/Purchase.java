@@ -81,6 +81,7 @@ public class Purchase extends Processing {
                 if(rs.getInt("price") < payment) {
                     return returnSeq("[경고]: 주문 대응 불가 - 금액 부족(" + (payment - rs.getInt("price")) + "원 부족)", "deny");
                 } else {
+                    payment = rs.getInt("price") - payment;
                     exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SET", currVendingID, currTimeStamp,"NULL", (rs.getString("id") + "|" + currVendingID + "|" + payment));
                 }
             }
