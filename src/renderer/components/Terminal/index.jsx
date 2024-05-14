@@ -1,4 +1,5 @@
 import * as React from "react";
+import { setCookie } from "../../utils/cookies";
 
 const dummyData = [
   {
@@ -33,11 +34,17 @@ const dummyData = [
 
 function TerminalLog() {
   const [log, setLog] = React.useState(dummyData);
+
+  function goToLogs() {
+    window.location.hash = "/logs";
+  }
   return (
     <div className="w-[50vw] h-[70vh] bg-white shadow-lg rounded-lg">
       <section className="flex justify-between">
         <div className=""></div>
-        <div className="cursor-pointer m-0.5">자세히</div>
+        <div className="cursor-pointer m-0.5" onClick={goToLogs}>
+          자세히
+        </div>
       </section>
       {log.map((item) => (
         <div>

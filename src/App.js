@@ -8,6 +8,7 @@ import Admin from "./renderer/pages/Admin";
 import Home from "./renderer/pages/Home";
 import CartProvider from "./renderer/components/CartProvider";
 import MoneyProvider from "./renderer/components/MoneyProvider";
+import Logs from "./renderer/pages/Logs";
 
 // water 450, coffee 500, energydrink 550, premiumcoffee 700, coke 750,
 // specialdrink 800
@@ -20,6 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/logs" element={<Logs />} />
           </Routes>
         </Router>
       </MoneyProvider>
