@@ -2,7 +2,6 @@ import * as React from "react";
 import { createContext, useState, useMemo, useEffect } from "react";
 export const VendingMContext = createContext();
 
-// TODO: 이거 서버로 옮겨야 됨
 function CartProvider({ children }) {
   const [displayData, setDisplayData] = useState([]);
   const [cartData, setCartData] = useState([]);
@@ -78,6 +77,7 @@ function CartProvider({ children }) {
 
   useEffect(() => {
     getProducts();
+    getRemain();
   }, []);
 
   const vendingMProvideData = useMemo(() => ({

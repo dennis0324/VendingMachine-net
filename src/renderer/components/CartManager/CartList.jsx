@@ -49,7 +49,7 @@ function List({ className = "", onRight, right }) {
       addPopup(<ReturnPopup msg={TEXT.NOSELECT} onClick={removePopup} />);
       return;
     }
-    if (payTotal <= total)
+    if (payTotal >= total)
       addPopup(<ConfirmPurchase onRight={removePopup} onLeft={purchase} />);
   }
 
