@@ -8,16 +8,16 @@ public class Payload {
 
     private JSONObject jsonObject;
     private JSONArray jsonArray;
+    private String payloadData;
 
-    Payload(String cmdData) { // 생성자
-        try {
-            this.jsonObject = new JSONObject(cmdData);
+    Payload(String classData) { // 생성자
+        try { // JSON 오브젝트 지정
+            this.jsonObject = new JSONObject(classData);
         } catch (JSONException e) {
-            try {
-                this.jsonArray = new JSONArray(cmdData);
-            } catch (JSONException ex) {
-                ex.printStackTrace();
-                System.out.println("[에러]: 확인되지 않은 JSON 타입");
+            try { // JSON 배열 지정
+                this.jsonArray = new JSONArray(classData);
+            } catch (JSONException ex) { // String 타입 지정
+                this.payloadData = classData;
             }
         }
     }

@@ -17,10 +17,5 @@ public abstract class Processing {
         this.sqlData = sqlData;
         this.classification = classification;
     }
-
-    public Processing(Classification classification, String counter) { // no sql require version
-        this.classification = classification;
-        this.counter = counter;
-    }
 }
 
