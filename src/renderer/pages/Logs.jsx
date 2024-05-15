@@ -27,9 +27,9 @@ function Logs() {
   function opType(optype) {
     switch (Number(optype)) {
       case 1:
-        return "판매";
-      case 2:
         return "보충";
+      case 2:
+        return "판매";
     }
   }
   return (
@@ -52,17 +52,23 @@ function Logs() {
                 <input
                   placeholder="Year"
                   className="w-12 mx-2"
-                  onChange={(e) => setYear(e.target.value)}
+                  onChange={(e) =>
+                    setYear(e.target.value === "" ? "%" : e.target.value)
+                  }
                 />
                 <input
                   placeholder="Month"
                   className="w-12 mx-2"
-                  onChange={(e) => setMonth(e.target.value)}
+                  onChange={(e) =>
+                    setMonth(e.target.value === "" ? "%" : e.target.value)
+                  }
                 />
                 <input
                   placeholder="Date"
                   className="w-12 mx-2"
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) =>
+                    setDate(e.target.value === "" ? "%" : e.target.value)
+                  }
                 />
                 <input
                   placeholder="Limit"
@@ -73,8 +79,11 @@ function Logs() {
               <button onClick={getLogs}>Search</button>
             </div>
             <div className="bg-gray-100 rounded-lg w-full h-full scroll-auto p-3">
-              {logs.map((item) => (
-                <div className="grid grid-cols-6 p-1 my-3 rounded-lg bg-gray-300">
+              {logs.map((item, index) => (
+                <div
+                  className="grid grid-cols-6 p-1 my-3 rounded-lg bg-gray-300"
+                  key={"Log-" + index}
+                >
                   <span className="col-span-2">{item.time}</span>
                   <span className="col-span-2">{item.name}</span>
                   <span className="col-span-1">{item.qty}개</span>

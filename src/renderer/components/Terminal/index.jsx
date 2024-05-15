@@ -12,9 +12,7 @@ function TerminalLog() {
 
   async function getLogs() {
     const date = new Date();
-    console.log(date.getFullYear(), date.getMonth(), date.getDate());
-    const { status, data } = await window.machine.getLogs("%", "%", "%", 20);
-    console.log(data);
+    const { status, data } = await window.machine.getLogs("%", "%", "%", 40);
     if (status === "success") setLog(data);
   }
   useEffect(() => {
@@ -24,9 +22,9 @@ function TerminalLog() {
   function opType(optype) {
     switch (Number(optype)) {
       case 1:
-        return "판매";
-      case 2:
         return "보충";
+      case 2:
+        return "판매";
     }
   }
 
@@ -40,9 +38,12 @@ function TerminalLog() {
           </IconHelper>
         </div>
       </section>
-      {log.map((item) => (
-        <div className="grid grid-cols-6 p-1 my-3 rounded-lg bg-gray-100">
-          <span className="col-span-2">{item.time.split(" ")[0]}</span>
+      {log.map((item, index) => (
+        <div
+          className="grid grid-cols-6 p-1 my-3 rounded-lg bg-gray-100"
+          key={"logPopup-" + index}
+        >
+          <span className="col-span-2">{item.time}</span>
           <span className="col-span-2">{item.name}</span>
           <span className="col-span-1">{item.qty}개</span>
           <span className="col-span-1">{opType(item.opType)}</span>

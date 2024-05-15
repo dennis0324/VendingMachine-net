@@ -18,6 +18,7 @@ let client = new net.Socket();
 
 // flag for unconnected state
 var intervalId = false;
+var longData = 0;
 console.log(">>> worker start Host: ", HOST);
 function tryConnect() {
   console.log(">>> trying to connect...");
@@ -44,13 +45,41 @@ function clearConnectInterval() {
   clearInterval(intervalId);
   intervalId = false;
 }
+var sendBuffer = [];
+var sendLength = 0;
+// var sendBuffer = new Uint8Array();
+function getLongdata(data) {
+  if (longData > sendBuffer.length) {
+    sendBuffer.push(data);
+    sendLength += data.toString().length;
+    console.log(sendLength, longData);
+  }
 
+  // last '\0' was not included
+  if (longData + 1 === sendLength) {
+    const concatBuffer = Buffer.from(...sendBuffer);
+    sendBuffer = [];
+    sendLength = 0;
+    longData = 0;
+    console.log("sendBuffer", concatBuffer.toString());
+    parentPort.postMessage(concatBuffer.toString());
+  }
+}
 /**
  * TCP event handler for receive data
  */
 client.on("data", (data) => {
-  console.log("rcv data:", data.toString());
-  parentPort.postMessage(data.toString());
+  // console.log("rcv data:", data.toString());
+  const checkLength = data.toString().split("|")[0];
+  if (checkLength === "length") {
+    console.log(data.toString().split("|")[1]);
+    longData = Number(data.toString().split("|")[1]);
+    return;
+  }
+
+  if (longData > 0) getLongdata(data);
+  else parentPort.postMessage(data.toString());
+  // parentPort.postMessage(data.toString());
 });
 
 /**
@@ -89,7 +118,7 @@ client.on("close", () => {
  * TCP event handler when server send message
  */
 parentPort.on("message", (data) => {
-  console.log("send data:", data);
+  // console.log("send data:", data);
   if (data?.cmd === undefined) {
     return;
   }
