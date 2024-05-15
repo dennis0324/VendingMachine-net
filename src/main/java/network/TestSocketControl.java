@@ -8,47 +8,127 @@ import java.util.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.json.JSONException;
 
-public class SocketControl {
+import static network.SocketControl.clientHandlers;
 
-    static List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
-    /* 클라이언트와의 연결을 유지하기 위한 PrintWriter 목록 */
+public class TestSocketControl {
+
     static boolean debugFlag = false;
     /* 디버그 플래그 */
-    // static HashMap<String, Socket> clientData = new HashMap<>();
-    /* 클라이언트 접근 이력 버퍼 */
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);           // input stream
+        Scanner scan = new Scanner(System.in);              // 입력 스트림
 
-        System.out.println("[알림]: 디버그 여부 (y/N)");
-        if(Objects.equals(scanner.nextLine(), "y")) {    // 디버그 여부 결정
+        System.out.print("[알림]: 디버그 여부 (y/N) >> ");
+        if (Objects.equals(scan.nextLine(), "y")) {      // 디버그 여부
             debugFlag = true;
             System.out.println("[알림]: 디버그 켜짐");
         }
 
-        System.out.println("[알림]: 서버 시작 중");
-        try {
-            ServerSocket serverSocket = new ServerSocket(6124);
-            /* 서버 소켓 생성 및 포트 6124으로 설정 */
+        // 두 개의 서버를 각각 다른 포트에서 실행
+        Thread server1Thread = new Thread(new ServerThread(6125));
+        Thread server2Thread = new Thread(new ServerThread(6126));
 
-            while (true) { // 클라이언트 수신 대기 및 접속 처리
-                Socket clientSocket         = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
-                Thread clientThread         = new Thread(clientHandler);
-                clientHandlers.add(clientHandler);
+        // 서버 스레드 시작
+        server1Thread.start();
+        server2Thread.start();
 
-                System.out.println("[알림]: 클라이언트 접속 - " + clientSocket);
-                clientThread.start();
+        try { // 클라이언트 연결을 분산하는 로드 밸런서 역할
+            ServerSocket loadBalancerSocket = new ServerSocket(6124);
+            System.out.println("[알림]: 로드 밸런서 서버 시작 중");
+
+            while (true) {
+                Socket clientSocket = loadBalancerSocket.accept();
+
+                // 로드 밸런서가 짝수 포트로 접속한 클라이언트는 첫 번째 서버로,
+                // 홀수 포트로 접속한 클라이언트는 두 번째 서버로 보냄
+                int serverPort = clientSocket.getPort() % 2 == 0 ? 6125 : 6126;
+
+                // 해당 포트로 클라이언트 소켓 전달
+                Socket serverSocket = new Socket("localhost", serverPort);
+                ClientForwarder forwarder = new ClientForwarder(clientSocket, serverSocket);
+                forwarder.start();
             }
-        } catch (IOException e) { // 예외 처리
-            exceptionMSG(e, "[경고]: 진행 중 에러 발생");
+        } catch (IOException e) {
+            exceptionMSG(e, "[에러]: 로드 밸런서 동작 중 에러 발생");
         }
     }
 
-    // 클라이언트 처리를 담당하는 내부 클래스
+    static class ServerThread implements Runnable {
+        int port;
+        public ServerThread(int port) { this.port = port; }
+
+        @Override
+        public void run() {
+            try {
+                ServerSocket serverSocket = new ServerSocket(port);
+                System.out.println("[알림]: 서버 시작 중 - 포트: " + port);
+
+                while (true) { // 클라이언트 수신 대기 및 접속 처리
+                    Socket clientSocket         = serverSocket.accept();
+                    ClientHandler clientHandler = new ClientHandler(clientSocket);
+                    Thread clientThread         = new Thread(clientHandler);
+
+                    System.out.println("[알림|" + port + "]: 클라이언트 접속 - " + clientSocket);
+                    clientThread.start();
+                }
+            } catch (IOException e) {
+                exceptionMSG(e, "[에러|" + port + "]: 진행 중 에러 발생");
+            }
+        }
+    }
+
+    static class ClientForwarder extends Thread {
+        private final Socket clientSocket;
+        private final Socket serverSocket;
+
+        public ClientForwarder(Socket clientSocket, Socket serverSocket) {
+            this.clientSocket = clientSocket;
+            this.serverSocket = serverSocket;
+        }
+
+        @Override
+        public void run() {
+            try { // 클라이언트로부터 받은 메시지를 서버로 전달
+                new Thread(new Forwarder(clientSocket.getInputStream(), serverSocket.getOutputStream())).start();
+                // 서버로부터 받은 응답을 클라이언트로 전달
+                new Thread(new Forwarder(serverSocket.getInputStream(), clientSocket.getOutputStream())).start();
+            } catch (IOException e) {
+                exceptionMSG(e, "[에러|" + serverSocket.getPort() + "]: 클라이언트-서버 간 통신 중 에러 발생");
+            }
+        }
+    }
+
+    static class Forwarder implements Runnable {
+        private final InputStream input;
+        private final OutputStream output;
+
+        public Forwarder(InputStream input, OutputStream output) {
+            this.input = input;
+            this.output = output;
+        }
+
+        @Override
+        public void run() {
+            try {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                    output.flush();
+                }
+            } catch (IOException e) {
+                System.out.println("[알림]: 클라이언트 연결 끊김");
+            }
+        }
+    }
+
     static class ClientHandler implements Runnable {
 
         private final Socket clientSocket;  // 클라이언트 오브젝트
