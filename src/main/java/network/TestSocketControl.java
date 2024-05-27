@@ -41,7 +41,7 @@ public class TestSocketControl {
 
         try { // 클라이언트 연결을 분산하는 로드 밸런서 역할
             ServerSocket loadBalancerSocket = new ServerSocket(6124);
-            System.out.println("[알림]: 로드 밸런서 서버 시작 중");
+            System.out.println("[알림]: 로드 밸런서 서버 시작 중 - 포트: 6124");
 
             while (true) {
                 Socket clientSocket = loadBalancerSocket.accept();

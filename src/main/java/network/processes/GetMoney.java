@@ -25,7 +25,6 @@ public class GetMoney extends Processing {
 
         // 변수
         ResultSet rs;                                   // SQL 데이터 테이블 결과값의 저장을 위한 변수
-        PreparedStatement ppst;                         // SQL 처리를 위한 오브젝트
         JSONArray moneyInfo = new JSONArray();          // JSON 타입 배열
         boolean type = (boolean)payload.get("all");     // true >>> execute SPE
         String currVendingID = classification.getValue(2);
