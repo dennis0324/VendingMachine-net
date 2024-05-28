@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Socket-Control:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Socket_Control_jar</output-path>
+    <root id="archive" name="Socket-Control.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="Socket-Control" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/json/json/20231013/json-20231013.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/mysql/mysql-connector-j/8.3.0/mysql-connector-j-8.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/3.25.1/protobuf-java-3.25.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
