@@ -1,11 +1,6 @@
-// const net = require("net");
 import { parentPort } from "worker_threads";
 import { createTcpDTO } from "../util/tcpSocketDto.mjs";
 import net from "net";
-import dotenv from "dotenv";
-
-// load env
-dotenv.config();
 
 let HOST = process.env.HOST;
 let PORT = process.env.PORT;

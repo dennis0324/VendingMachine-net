@@ -1,21 +1,31 @@
-import { ipcMain } from "electron";
+import { ipcMain,app } from "electron";
 import Store from "electron-store";
 import crypto from "crypto";
 import { Worker } from "worker_threads";
 import { DataController } from "./DataController.mjs";
 import { timeStamp } from "../util/date.mjs";
+import dotenv from "dotenv";
 
+let workerPath = "./src/electron/worker/worker.mjs"
+if(app.isPackaged){
+  workerPath = "./resources/electron/worker/worker.mjs"
+  dotenv.config({path:'./resources/.env'})
+}
+else{
+  dotenv.config();
+}
 const store = new Store();
 const dataController = new DataController();
 
 /**
  * react <-> electron ipc 통신
  */
-export function IpcPool() {
+export async function IpcPool() {
   let worker;
+  let resolve;
   try {
-    worker = new Worker("./src/electron/worker/worker.mjs", {
-      env: { MODE: process.env.MODE },
+    worker = new Worker(workerPath, {
+      env: { MODE: process.env.MODE,HOST : process.env.HOST,PORT: process.env.PORT },
     });
   } catch (e) {
     console.log(e);
@@ -59,6 +69,7 @@ export function IpcPool() {
       payload: {},
     };
     worker.postMessage(ipcDto);
+    resolve();
   });
 
   /**
@@ -106,6 +117,7 @@ export function IpcPool() {
   ipcMain.handle("vendingId", async (_) => {
     return store.get("vendingId");
   });
+  
 
-  return worker;
+  return new Promise((res) => {resolve =res});
 }
