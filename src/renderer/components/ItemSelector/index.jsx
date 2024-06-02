@@ -13,9 +13,11 @@ function ItemSelector({ className }) {
   return (
     <>
       <container className={combineClass}>
-        {displayData.map((item) => (
-          <MenuItem key={item.name} item={item} />
-        ))}
+        {displayData.length === 0 ? (
+          <div>server is not online</div>
+        ) : (
+          displayData.map((item) => <MenuItem key={item.name} item={item} />)
+        )}
       </container>
     </>
   );
