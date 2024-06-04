@@ -4,7 +4,7 @@ import crypto from "crypto";
 import { Worker } from "worker_threads";
 import { DataController } from "./DataController.mjs";
 import { timeStamp } from "../util/date.mjs";
-import dotenv from "dotenv";
+import dotenv, { config } from "dotenv";
 
 let workerPath = "./src/electron/worker/worker.mjs"
 if(app.isPackaged){
@@ -16,13 +16,15 @@ else{
 }
 const store = new Store();
 const dataController = new DataController();
-
+store.set("tempVendingId",'');
 /**
  * react <-> electron ipc 통신
  */
-export async function IpcPool() {
+export async function IpcPool(makeNew = false) {
   let worker;
   let resolve;
+  let resolveVendingId
+  const hasVendingId = new Promise((res) => resolveVendingId = res);
   try {
     worker = new Worker(workerPath, {
       env: { MODE: process.env.MODE,HOST : process.env.HOST,PORT: process.env.PORT },
@@ -46,7 +48,12 @@ export async function IpcPool() {
     console.log(payload);
     // need to store vendingId for use universal
     if (cmd === "handshake") {
-      store.set("vendingId", vendingId);
+      // store.set("vendingId", vendingId);
+      store.set("tempVendingId",vendingId);
+      resolveVendingId();
+      if(!makeNew){
+        store.set("vendingId",store.get("tempVendingId"));
+      }
       return;
     }
     let jsonPayload = "";
@@ -61,10 +68,13 @@ export async function IpcPool() {
   });
 
   worker.on("online", () => {
+    let tempVendingId = ''
+    if(!makeNew)
+      tempVendingId = store.get("tempVendingId")
     const ipcDto = {
       cmd: "handshake",
       hash: "",
-      vendingId: "",
+      vendingId: tempVendingId ?? "",
       date: timeStamp(),
       payload: {},
     };
@@ -100,7 +110,8 @@ export async function IpcPool() {
    */
   cmdCollections.forEach((cmd) => {
     ipcMain.handle(cmd, async (_, ipcDto) => {
-      ipcDto.vendingId = store.get("vendingId");
+      await hasVendingId;
+      ipcDto.vendingId = store.get("tempVendingId");
       if (needCrypto.includes(cmd)) {
         ipcDto.payload.password = crypto
           .createHash("sha256")
@@ -115,7 +126,8 @@ export async function IpcPool() {
    * return vendingId
    */
   ipcMain.handle("vendingId", async (_) => {
-    return store.get("vendingId");
+
+    return configVendingId
   });
 
   return new Promise((res) => {resolve =res});

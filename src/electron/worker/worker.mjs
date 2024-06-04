@@ -18,6 +18,12 @@ console.log(">>> worker start Host: ", HOST);
 
 const sendQueue = [];
 let isConnected = false;
+const IDLE = 0;
+const SEND_INIT = 1;
+const RECV_INIT = 2;
+const COMP_INIT = 3;
+let handShakeStatus = IDLE;
+
 function tryConnect() {
   console.log(">>> trying to connect...");
   try {
@@ -68,11 +74,14 @@ function getLongdata(data) {
  */
 client.on("data", (data) => {
   console.log("rcv data:", data.toString().split("|")[0]);
-  const checkLength = data.toString().split("|")[0];
-  if (checkLength === "length") {
+  const cmd = data.toString().split("|")[0];
+  if (cmd === "length") {
     // console.log(data.toString().split("|")[1]);
     longData = Number(data.toString().split("|")[1]);
     return;
+  }
+  if (cmd === "handshake"){
+    handShakeStatus = RECV_INIT;
   }
 
   if (longData > 0) getLongdata(data);
@@ -122,7 +131,8 @@ parentPort.on("message", (data) => {
     return;
   }
 
-  if(isConnected){
+  if(!isConnected || handShakeStatus !== COMP_INIT){
+    console.log("pushed");
     sendQueue.push(data)
     return
   }
@@ -134,12 +144,22 @@ parentPort.on("message", (data) => {
 
 
 const connectIntveral = setInterval(() => {
-  console.log("check connected",isConnected);
-  if(isConnected) clearInterval(connectIntveral);
-  sendQueue.forEach((e) => {
-    const payload = createTcpDTO(e);
+  if(isConnected && handShakeStatus === COMP_INIT) clearInterval(connectIntveral);
+  if(handShakeStatus === RECV_INIT){
+    sendQueue.forEach((e) => {
+      const payload = createTcpDTO(e);
+      client.write(payload);
+    })
+    handShakeStatus = COMP_INIT;
+  }
+  if(handShakeStatus === IDLE){
+    const indexHandshake = sendQueue.findIndex((e) => e.cmd === 'handshake');
+    const sendData = sendQueue.splice(indexHandshake,1)[0]
+    const payload = createTcpDTO(sendData);
     client.write(payload);
-  })
+    handShakeStatus = SEND_INIT;
+  }
+
 },500);
 
 tryConnect();

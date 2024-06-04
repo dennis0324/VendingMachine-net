@@ -137,8 +137,4 @@ contextBridge.exposeInMainWorld("machine", {
   getLogs: async (year, month, day, limit) => {
     return await sendToMain("getLogs", { year, month, day, limit });
   },
-
-  isConected: () => {
-    
-  }
 });

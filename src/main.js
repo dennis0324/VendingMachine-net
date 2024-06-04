@@ -1,12 +1,18 @@
 import { app, BrowserWindow } from "electron";
 import { IpcPool } from "./electron/worker/workerPool";
-import ini from 'ini'
+import getopt from "node-getopt"
+
+
+const opt = getopt.create([
+  ['n','makeNew','create new client']
+]).bindHelp().parseSystem();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+// console.log(opt.options.makeNew);
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -29,7 +35,7 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
-  await IpcPool();
+  await IpcPool(opt.options.makeNew);
   createWindow();
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
