@@ -117,7 +117,6 @@ export async function IpcPool() {
   ipcMain.handle("vendingId", async (_) => {
     return store.get("vendingId");
   });
-  
 
   return new Promise((res) => {resolve =res});
 }

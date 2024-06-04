@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import { IpcPool } from "./electron/worker/workerPool";
+import ini from 'ini'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

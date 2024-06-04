@@ -15,6 +15,9 @@ let client = new net.Socket();
 var intervalId = false;
 var longData = 0;
 console.log(">>> worker start Host: ", HOST);
+
+const sendQueue = [];
+let isConnected = false;
 function tryConnect() {
   console.log(">>> trying to connect...");
   try {
@@ -64,10 +67,10 @@ function getLongdata(data) {
  * TCP event handler for receive data
  */
 client.on("data", (data) => {
-  // console.log("rcv data:", data.toString());
+  console.log("rcv data:", data.toString().split("|")[0]);
   const checkLength = data.toString().split("|")[0];
   if (checkLength === "length") {
-    console.log(data.toString().split("|")[1]);
+    // console.log(data.toString().split("|")[1]);
     longData = Number(data.toString().split("|")[1]);
     return;
   }
@@ -83,6 +86,7 @@ client.on("data", (data) => {
 client.on("connect", () => {
   clearConnectInterval();
   console.log(">> tcp connected");
+  isConnected = true;
 });
 
 /**
@@ -118,8 +122,24 @@ parentPort.on("message", (data) => {
     return;
   }
 
+  if(isConnected){
+    sendQueue.push(data)
+    return
+  }
+
   const payload = createTcpDTO(data);
+  console.log(payload);
   client.write(payload);
 });
+
+
+const connectIntveral = setInterval(() => {
+  console.log("check connected",isConnected);
+  if(isConnected) clearInterval(connectIntveral);
+  sendQueue.forEach((e) => {
+    const payload = createTcpDTO(e);
+    client.write(payload);
+  })
+},500);
 
 tryConnect();
