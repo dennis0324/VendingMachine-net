@@ -1,0 +1,12 @@
+# mysql 8 image call
+FROM mysql:8
+
+# copy db initalize sql 
+COPY MySQL-init.sql /docker-entrypoint-initdb.d/init.sql
+
+# set basic env variable
+ENV MySQL_DATABASE value
+ENV MYSQL_ROOT_PASSWORD value
+
+# set port
+EXPOSE 3306

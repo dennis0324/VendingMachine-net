@@ -1,0 +1,66 @@
+version: '3'
+
+services: # load balancer
+    # nginx:
+    #     build:
+    #         context: .
+    #         dockerfile: ./DockerfileNginx
+    #     container_name: nginx
+    #     hostname: nginx 
+    #     privileged: true        #command:  
+    #     environment:
+    #         - TZ=Asia/Seoul                   
+    #     volumes:
+    #         - /sys/fs/cgroup:/sys/fs/cgroup:ro             
+    #     restart: always
+    #     ports:
+    #         - "22:22"
+    #         - "80:80"        
+    
+    jar: # backend server
+        build:
+            context: .
+            dockerfile: ./DockerfileOpenJDK
+        container_name: jar
+        hostname: jar       
+        privileged: true 
+        environment: 
+            - TZ=Asia/Seoul 
+        volumes:
+            - /sys/fs/cgroup:/sys/fs/cgroup:ro
+        restart: always   
+        ports: 
+            - "10001:22"
+            - "6124:6124"
+
+    # jar2: # backend server
+    #     build:
+    #         context: .
+    #         dockerfile: ./DockerfileOpenJDK
+    #     container_name: jar2
+    #     hostname: jar2       
+    #     privileged: true 
+    #     environment: 
+    #         - TZ=Asia/Seoul 
+    #     volumes:
+    #         - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    #     restart: always   
+    #     ports: 
+    #         - "10003:22"
+    #         - "6125:6124"
+
+    mysql: # db server
+        build:
+            context: .
+            dockerfile: ./DockerfileMySQL
+        container_name: mysql
+        hostname: mysql       
+        privileged: true
+        environment: 
+            - TZ=Asia/Seoul 
+        volumes:
+            - ./MySQL-init.sql:/docker-entrypoint-initdb.d/init.sql
+        restart: always   
+        ports: 
+            - "10002:22"
+            - "3306:3306"
