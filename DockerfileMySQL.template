@@ -5,8 +5,8 @@ FROM mysql:8
 COPY MySQL-init.sql /docker-entrypoint-initdb.d/init.sql
 
 # set basic env variable
-ENV MySQL_DATABASE value
-ENV MYSQL_ROOT_PASSWORD value
+ENV MySQL_DATABASE [DB_NAME]
+ENV MYSQL_ROOT_PASSWORD [MYSQL_ROOT_PW]
 
 # set port
 EXPOSE 00000

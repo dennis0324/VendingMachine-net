@@ -2,10 +2,10 @@ FROM openjdk:21-jdk
 
 COPY OpenJDK-server.jar server.jar
 
-ENV DB_ADDR value
-ENV DB_ID value
-ENV DB_PW value
-ENV DB_ROOT_PW value
+ENV DB_ADDR [DB_ADDR]
+ENV DB_ID [DB_ID]
+ENV DB_PW [DB_PW]
+ENV DB_ROOT_PW [DB_ROOT_PW]
 
 EXPOSE 00000
 ENTRYPOINT [ "java", "-jar", "/server.jar" ]
