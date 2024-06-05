@@ -7,5 +7,5 @@ ENV DB_ID value
 ENV DB_PW value
 ENV DB_ROOT_PW value
 
-EXPOSE 6124
+EXPOSE 00000
 ENTRYPOINT [ "java", "-jar", "/server.jar" ]
