@@ -289,7 +289,7 @@ public class ThreadSocketControl {
             while((s = br.readLine()) != null) { sqlData[i++] = s; }
 
         } catch (IOException e) { // 예외 처리
-            exceptionMSG(e, "[경고]: 파일 탐색 실패");
+            exceptionMSG(e, "[경고]: 외부 파일 탐색 실패");
 
             try { // Jar 내에서 파일 읽어오기
                 InputStream inputStream = Main.class.getResourceAsStream("/data/mysql.txt");
@@ -303,7 +303,12 @@ public class ThreadSocketControl {
                 while((s = br2.readLine()) != null) { sqlData[i++] = s; }
                 
             } catch (IOException ex) { // 예외 처리
-                exceptionMSG(ex, "[에러]: Jar 내부 파일 탐색 실패");
+                exceptionMSG(ex, "[경고]: Jar 내부 파일 탐색 실패");
+
+                sqlData[0] = System.getenv("MYSQL_HOST_ADDRESS");
+                sqlData[1] = System.getenv("MYSQL_DATABASE_ID");
+                sqlData[2] = System.getenv("MYSQL_DATABASE_PW");
+                sqlData[3] = System.getenv("MYSQL_ADMINISTRATOR");
             }
 
         } return sqlData;
