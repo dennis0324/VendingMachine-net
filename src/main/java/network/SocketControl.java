@@ -14,21 +14,12 @@ public class SocketControl {
 
     static List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
     /* 클라이언트와의 연결을 유지하기 위한 PrintWriter 목록 */
-    static boolean debugFlag = false;
+    static boolean debugFlag = true;
     /* 디버그 플래그 */
-    // static HashMap<String, Socket> clientData = new HashMap<>();
-    /* 클라이언트 접근 이력 버퍼 */
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);           // input stream
-
-        System.out.println("[알림]: 디버그 여부 (y/N)");
-        if(Objects.equals(scanner.nextLine(), "y")) {    // 디버그 여부 결정
-            debugFlag = true;
-            System.out.println("[알림]: 디버그 켜짐");
-        }
-
+        System.out.println("[알림]: 디버그 켜짐");
         System.out.println("[알림]: 서버 시작 중");
         try {
             ServerSocket serverSocket = new ServerSocket(6124);
@@ -203,7 +194,7 @@ public class SocketControl {
         int i = 0;
 
         try { // DB 서버 연결 정보를 가진 파일 호출
-            FileReader fileReader = new FileReader("src/main/rsc/mysql.txt");
+            FileReader fileReader = new FileReader("src/main/resources/mysql.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             /* sql 로그인 데이터 처리 */

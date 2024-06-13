@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class Handshake extends Processing {
 
@@ -24,9 +25,17 @@ public class Handshake extends Processing {
 
         // 변수
         String newVendingID = String.valueOf(classification.getValue(4));
+        String dummyData = String.valueOf(classification.getValue(2));
 
-        try { // 쿼리 실행
+        if (Objects.equals(dummyData, "")) return returnSeq("[알림]: 클라이언트 재연결 감지", "deny", "");
+
+        try { // 쿼리 실행 - 기존의 번호를 사용하던 기기의 DB 내역 삭제
             exeQuery(conn, "CALL MACHINE_REMOVE(?)", newVendingID);
+        } catch (SQLException e) { // 예외 처리
+            System.out.println("[경고]: 더미 데이터 삭제 실패");
+        }
+
+        try { // 쿼리 실행 - 접근한 자판기 번호의 DB 내역 초기화
             exeQuery(conn, "CALL MACHINE_INIT(?, ?)", newVendingID, "null");
         } catch (SQLException e) { // 예외 처리
             e.printStackTrace();

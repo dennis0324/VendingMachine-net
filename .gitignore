@@ -37,4 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store
 
-/src/main/rsc/mysql.txt
+/src/main/resources/mysql.txt
