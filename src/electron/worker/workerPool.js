@@ -16,7 +16,7 @@ else{
 }
 const store = new Store();
 const dataController = new DataController();
-store.set("tempVendingId",'');
+let tempVendingId = ''
 /**
  * react <-> electron ipc 통신
  */
@@ -49,10 +49,10 @@ export async function IpcPool(makeNew = false) {
     // need to store vendingId for use universal
     if (cmd === "handshake") {
       // store.set("vendingId", vendingId);
-      store.set("tempVendingId",vendingId);
+      tempVendingId = vendingId;
       resolveVendingId();
       if(!makeNew){
-        store.set("vendingId",store.get("tempVendingId"));
+        store.set("vendingId",tempVendingId);
       }
       return;
     }
@@ -68,13 +68,13 @@ export async function IpcPool(makeNew = false) {
   });
 
   worker.on("online", () => {
-    let tempVendingId = ''
+    let tempVendingIds = ''
     if(!makeNew)
-      tempVendingId = store.get("tempVendingId")
+      tempVendingIds = tempVendingId
     const ipcDto = {
       cmd: "handshake",
       hash: "",
-      vendingId: tempVendingId ?? "",
+      vendingId: tempVendingIds ?? "",
       date: timeStamp(),
       payload: {},
     };
@@ -111,7 +111,7 @@ export async function IpcPool(makeNew = false) {
   cmdCollections.forEach((cmd) => {
     ipcMain.handle(cmd, async (_, ipcDto) => {
       await hasVendingId;
-      ipcDto.vendingId = store.get("tempVendingId");
+      ipcDto.vendingId = tempVendingId;
       if (needCrypto.includes(cmd)) {
         ipcDto.payload.password = crypto
           .createHash("sha256")

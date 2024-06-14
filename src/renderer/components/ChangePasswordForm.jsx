@@ -7,7 +7,7 @@ import Close from "../icons/close.svg";
 import ReturnPopup from "./ReturnPopup";
 
 import { addPopup } from "./PopupManager";
-import { removePopup } from "./PopupManager";
+import { removePopup,clearPopup } from "./PopupManager";
 import { TEXT } from "../utils/constants";
 
 function ChangePasswordForm() {
@@ -21,7 +21,7 @@ function ChangePasswordForm() {
     }
     const { status } = await window.machine.changePassword(password);
     if (status === "success") {
-      addPopup(<ReturnPopup msg={TEXT.SUCCESS_CHANGEPASSWORD} />);
+      addPopup(<ReturnPopup msg={TEXT.SUCCESS_CHANGEPASSWORD} onClick={clearPopup}/>);
     } else {
       addPopup(<ReturnPopup msg={TEXT.FAIL_CHANGEPASSWORD} />);
     }

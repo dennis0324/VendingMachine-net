@@ -156,6 +156,7 @@ const connectIntveral = setInterval(async () => {
       
       const waitArrived = new Promise(resolve => {arrived = resolve})
       const payload = createTcpDTO(e);
+      console.log(payload);
       client.write(payload);
       await waitArrived;
       arrived = null;

@@ -7,6 +7,8 @@ const opt = getopt.create([
   ['n','makeNew','create new client']
 ]).bindHelp().parseSystem();
 
+console.log(opt.options.makeNew)
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
