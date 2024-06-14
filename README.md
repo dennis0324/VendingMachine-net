@@ -41,7 +41,7 @@ ENV MySQL_DATABASE [DB_NAME]                    #예시) VendingMachine
 ENV MYSQL_ROOT_PASSWORD [MYSQL_ROOT_PW]         #예시) root
 
 #set port
-EXPOSE 00000                                    #예시) 6124  
+EXPOSE 00000                                    #예시) 3306  
 ```  
    
  - DockerfileOpenJDK.template
@@ -57,7 +57,7 @@ ENV MYSQL_DATABASE_ID [DB_USER_ID]              #예시) vending
 ENV MYSQL_DATABASE_PW [DB_USER_PW]              #예시) vending1234
 ENV MYSQL_ADMINISTRATOR [DB_ADMIN_ID]           #예시) admin
 
-EXPOSE 00000                                    #예시) 3306
+EXPOSE 00000                                    #예시) 6124
 ENTRYPOINT [ "java", "-jar", "/server.jar" ]    #예시) jar 파일 실행
 ```
 
