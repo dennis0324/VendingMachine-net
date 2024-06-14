@@ -1,7 +1,7 @@
 # 네트워크 프로그래밍 - 텀프로젝트  
  - Update: 14/06/2024   
- - 고동현[(@dennisKo)](https://github.com/dennis0324)
- - 박민수[(@mindsubak)](https://github.com/minsubak)
+ - 고동현([@dennisKo](https://github.com/dennis0324))
+ - 박민수([@mindsubak](https://github.com/minsubak))
  ## 개요   
  - [설치하는 방법](#설치)   
  - [초기세팅 설정](#설정)
