@@ -470,3 +470,18 @@ GRANT EXECUTE ON PROCEDURE MACHINE_REMOVE TO 'vending'@'%';
 GRANT EXECUTE ON PROCEDURE MACHINE_REMOVE_ALL TO 'vending'@'%';
 GRANT EXECUTE ON PROCEDURE USER_LOGININFO_GET TO 'vending'@'%';
 GRANT EXECUTE ON PROCEDURE USER_PASSWORD_CHANGE TO 'vending'@'%';
+
+-- item data
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('물',450,6);
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('커피',500,6);
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('이온 음료',550,6);
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('고급 커피',700,6);
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('탄산 음료',750,6);
+INSERT INTO `ConstantVarTbl`(`name`,`price`,`qty`) VALUES('특화 음료',800,6);
+
+-- money data
+INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(10,10);
+INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(50,10);
+INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(100,10);
+INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(500,10);
+INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(1000,10);

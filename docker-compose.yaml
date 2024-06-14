@@ -30,7 +30,6 @@ services: # load balancer
             - /sys/fs/cgroup:/sys/fs/cgroup:ro
         restart: always   
         ports: 
-            - "10001:22"
             - "6124:6124"
 
     # jar2: # backend server
@@ -61,6 +60,3 @@ services: # load balancer
         volumes:
             - ./MySQL-init.sql:/docker-entrypoint-initdb.d/init.sql
         restart: always   
-        ports: 
-            - "10002:22"
-            - "3306:3306"
