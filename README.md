@@ -59,6 +59,7 @@ ENTRYPOINT [ "java", "-jar", "/server.jar" ]    #예시) jar 파일 실행
 
  ## 구동
 ``` bash
+# 해당 폴더 이동
 cd VendingMachine-net
 # 백엔드 & DB 서버 실행
 docker-compose up -d
