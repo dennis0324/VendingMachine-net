@@ -3,6 +3,7 @@ FROM mysql:8
 
 # copy db initalize sql 
 COPY MySQL-init.sql /docker-entrypoint-initdb.d/init.sql
+COPY MySQL-config.cnf /etc/mysql/my.cnf
 
 # set basic env variable
 ENV MySQL_DATABASE [DB_NAME]
