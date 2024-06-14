@@ -46,6 +46,17 @@ CREATE TABLE `MachineHistoryTbl` (
     PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `MachineItemHistoryTbl` (
+    `logid` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(11) NOT NULL COMMENT 'Primary Key',
+    `vendingid` varchar(5) NOT NULL COMMENT 'vendingID',
+    `time` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Time',
+    `productid` varchar(5) NOT NULL COMMENT 'prdID',
+    `opType` varchar(1) NOT NULL DEFAULT '0' COMMENT '판매 / 보충',
+    `qty` int(11) NOT NULL DEFAULT 0 COMMENT 'Quantity',
+    PRIMARY KEY (`logid`, `id`, `vendingid`)
+);
+
 CREATE TABLE `MachineItemTbl` (
     `id` varchar(5) NOT NULL,
     `productId` int(11) NOT NULL,
@@ -485,3 +496,6 @@ INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(50,10);
 INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(100,10);
 INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(500,10);
 INSERT INTO `ConstantMoneyTbl`(`price`,`qty`) VALUES(1000,10);
+
+-- admin
+INSERT INTO `CredentialTbl`(`id`,`password`) VALUES('admin','jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg=');
