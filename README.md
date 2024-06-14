@@ -15,7 +15,11 @@ OS: Ubuntu Server 20.04 LTS or Later
 Docker: 20.10.24 or Later (API 1.41)  
 docker-compose: 2.27.0 or Later  
 ```
-
+```
+OS: window 10 or later (윈도우의 경우 docker-desktop 필수)
+Docker: 20.10.24 or Later (API 1.41)  
+docker-compose: 2.27.0 or Later  
+```
 하단의 명령어를 통해 파일을 받으실 수 있습니다.
 ```
 git clone github.com/dennis0324/VendingMachine-net.git
