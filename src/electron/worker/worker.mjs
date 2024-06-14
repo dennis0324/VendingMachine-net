@@ -10,6 +10,7 @@ if (process.env.MODE === "development") {
 }
 // create tcp client
 let client = new net.Socket();
+let arrived;
 
 // flag for unconnected state
 var intervalId = false;
@@ -75,6 +76,7 @@ function getLongdata(data) {
 client.on("data", (data) => {
   console.log("rcv data:", data.toString().split("|")[0]);
   const cmd = data.toString().split("|")[0];
+  if(arrived) arrived();
   if (cmd === "length") {
     // console.log(data.toString().split("|")[1]);
     longData = Number(data.toString().split("|")[1]);
@@ -141,15 +143,24 @@ parentPort.on("message", (data) => {
   console.log(payload);
   client.write(payload);
 });
-
-
-const connectIntveral = setInterval(() => {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+let running = false;
+const connectIntveral = setInterval(async () => {
+  if(running) return;
   if(isConnected && handShakeStatus === COMP_INIT) clearInterval(connectIntveral);
   if(handShakeStatus === RECV_INIT){
-    sendQueue.forEach((e) => {
+    running = true;
+    for await (const e of sendQueue) {
+      
+      const waitArrived = new Promise(resolve => {arrived = resolve})
       const payload = createTcpDTO(e);
       client.write(payload);
-    })
+      await waitArrived;
+      arrived = null;
+    }
+    
     handShakeStatus = COMP_INIT;
   }
   if(handShakeStatus === IDLE){
