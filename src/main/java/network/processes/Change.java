@@ -32,8 +32,8 @@ public class Change extends Processing {
         JSONArray beforeData  = new JSONArray();                     // 클라이언트에게 반환할 payload before 데이터
         StringBuilder value   = new StringBuilder();                 // 쿼리에서 사용할 value data
         String[] productOrder = {"id", "productId", "name", "price", "qty", "qty_limit"}; // JSON Object 키값 정렬 순서(product)
-        String currVendingID  = classification.getValue(2);    //
-        String currTimeStamp  = classification.getValue(3);    //
+        String currVendingID  = classification.getValue(2);    // 현재 작업 중인 자판기 ID
+        String currTimeStamp  = classification.getValue(3);    // 현재 작업 중인 자판기 동작 시간
 
         try { // 제품 테이블 내용 불러오기
             rs = exeQuery(conn, "CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
@@ -47,7 +47,7 @@ public class Change extends Processing {
             String productID = rs.getString("productId");
             String[] tmpInfo = new String[productOrder.length];
             for (int i = 0; i < changeInfo.length(); i++) {
-                if (Objects.equals(changeInfo.getJSONObject(i).getString("productId"), productID)) {
+                if (Objects.equals(Integer.toString(changeInfo.getJSONObject(i).getInt("productId")), productID)) {
                     JSONObject obj = new JSONObject();
                     // 각 행에서 모든 열의 데이터를 가져와서 출력
                     for(int j = 1; j <= rs.getMetaData().getColumnCount(); j++) {
@@ -58,8 +58,8 @@ public class Change extends Processing {
                     tmpInfo[0] = currVendingID;
                     tmpInfo[1] = productID;
                     tmpInfo[2] = changeInfo.getJSONObject(i).getString("name");
-                    tmpInfo[3] = changeInfo.getJSONObject(i).getString("price");
-                    tmpInfo[4] = changeInfo.getJSONObject(i).getString("qty");
+                    tmpInfo[3] = Integer.toString(changeInfo.getJSONObject(i).getInt("price"));
+                    tmpInfo[4] = Integer.toString(changeInfo.getJSONObject(i).getInt("qty"));
                     tmpInfo[5] = "6";
 
                     for (String s : tmpInfo) { value.append(s).append("|"); }

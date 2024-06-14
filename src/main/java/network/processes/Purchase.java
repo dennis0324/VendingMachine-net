@@ -51,15 +51,19 @@ public class Purchase extends Processing {
                 ArrayList<String> productInfoTmp = new ArrayList<>();
                 JSONObject compareTarget = requestOrder.getJSONObject(i);
                 Iterator keys = compareTarget.keys();
-                while(keys.hasNext()) {
+                while(keys.hasNext()) { // 키 배열 전체를 반복
                     String key = (String)keys.next();
-                    tmpJson.put(key, compareTarget.getString(key));
+                    try { // 임시 JSON 변수에 삽입
+                        tmpJson.put(key, compareTarget.getString(key));
+                    } catch (JSONException e) { // 예외 처리
+                        tmpJson.put(key, Integer.toString(compareTarget.getInt(key)));
+                    }
                 } // Iterator 타입 배열에 비교할 JSON Object 의 key 값을 삽입
 
                 for(String s : productOrder) productInfoTmp.add((String)tmpJson.get(s));
                 // ArrayList를 JsonOrder 값에 맞게 정렬
 
-                if(!Objects.equals(compareTarget.getString("productId"), productId))  continue;
+                if(!Objects.equals(Integer.toString(compareTarget.getInt("productId")), productId))  continue;
                 // 서로의 productID 값이 다를 경우 continue
 
                 if(compareTarget.getInt("qty") > qty) {

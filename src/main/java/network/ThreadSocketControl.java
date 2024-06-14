@@ -2,8 +2,6 @@ package network;
 
 import network.processes.*;
 
-import com.sun.tools.javac.Main;
-
 import java.io.*;
 import java.sql.*;
 
@@ -14,12 +12,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.json.JSONException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import static network.SocketControl.clientHandlers;
+import org.json.JSONException;
 
 public class ThreadSocketControl {
 
+    static List<ClientHandler> clientHandlers = Collections.synchronizedList(new ArrayList<>());
+    /* 클라이언트와의 연결을 유지하기 위한 PrintWriter 목록 */
     static boolean debugFlag = true;
     /* 디버그 플래그 */
 
@@ -39,7 +41,7 @@ public class ThreadSocketControl {
             ServerSocket loadBalancerSocket = new ServerSocket(6124);
             System.out.println("[알림]: 로드 밸런서 서버 시작 중 - 포트: 6124");
 
-            while (true) {
+            while (true) { // 소켓 접근 확인 절차
                 Socket clientSocket = loadBalancerSocket.accept();
 
                 // 로드 밸런서가 짝수 포트로 접속한 클라이언트는 첫 번째 서버로,
@@ -51,7 +53,7 @@ public class ThreadSocketControl {
                 ClientForwarder forwarder = new ClientForwarder(clientSocket, serverSocket);
                 forwarder.start();
             }
-        } catch (IOException e) {
+        } catch (IOException e) { // 예외 처리
             exceptionMSG(e, "[에러]: 로드 밸런서 동작 중 에러 발생");
         }
     }
@@ -62,7 +64,7 @@ public class ThreadSocketControl {
         public ServerThread(int port) { this.port = port; }
 
         @Override
-        public void run() {
+        public void run() { // 서버 쓰레드 (이중화)
             try {
                 if (port == 6125) num = 1;
                 else num = 2;
@@ -77,7 +79,7 @@ public class ThreadSocketControl {
                     System.out.println("[알림|" + num + "번 서버]: 클라이언트 접속 - " + clientSocket);
                     clientThread.start();
                 }
-            } catch (IOException e) {
+            } catch (IOException e) { // 예외 처리
                 exceptionMSG(e, "[에러|" + num + "번 서버]: 진행 중 에러 발생");
             }
         }
@@ -93,7 +95,7 @@ public class ThreadSocketControl {
         }
 
         @Override
-        public void run() {
+        public void run() { // 클라이언트-서버 간 실시간 통신
             try { // 클라이언트로부터 받은 메시지를 서버로 전달
                 new Thread(new Forwarder(clientSocket.getInputStream(), serverSocket.getOutputStream())).start();
                 // 서버로부터 받은 응답을 클라이언트로 전달
@@ -115,14 +117,14 @@ public class ThreadSocketControl {
 
         @Override
         public void run() {
-            try {
+            try { // 입력 처리
                 byte[] buffer = new byte[4096];
                 int bytesRead;
                 while ((bytesRead = input.read(buffer)) != -1) {
                     output.write(buffer, 0, bytesRead);
                     output.flush();
                 }
-            } catch (IOException e) {
+            } catch (IOException e) { // 예외 처리
                 System.out.println("[알림]: 클라이언트 연결 끊김");
             }
         }
@@ -151,8 +153,14 @@ public class ThreadSocketControl {
                 final InputStreamReader streamReader = new InputStreamReader(clientSocket.getInputStream());
                 BufferedReader bufferedReader        = new BufferedReader(streamReader);
                 Connection connection                = null;            // SQL Connection 데이터
-                String[] sqlData                     = getConfig();     // MySQL 접속 정보
+                String[] sqlData                     = new String[4];   // MySQL 접속 정보
                 String clientInput;                                     // 클라이언트로부터의 입력
+
+                // Docker 에서 환경 변수로부터 DB 정보 불러오기
+                sqlData[0] = System.getenv("MYSQL_HOST_ADDRESS");
+                sqlData[1] = System.getenv("MYSQL_DATABASE_ID");
+                sqlData[2] = System.getenv("MYSQL_DATABASE_PW");
+                sqlData[3] = System.getenv("MYSQL_ADMINISTRATOR");
 
                 try { // MySQL 연결
                     connection = DriverManager.getConnection(sqlData[0], sqlData[1], sqlData[2]);
@@ -231,7 +239,7 @@ public class ThreadSocketControl {
                                     break;
                             }
 
-                        } catch (JSONException e) {
+                        } catch (JSONException e) { // 예외 처리
                             if(debugFlag) e.printStackTrace();
                             System.out.println("[경고]: 올바르지 않은 형태/타입의 CMD 코드");
                             System.out.print("CMD: ");
@@ -241,12 +249,12 @@ public class ThreadSocketControl {
 
                         }
                     }
-                } catch (SQLException e) {
+                } catch (SQLException e) { // 예외 처리
                     if(debugFlag) e.printStackTrace();
                     System.out.println("[경고]: CMD 코드 처리 과정 중 예외 발생");
 
-                } finally {
-                    try { // 리소스 해제
+                } finally { // 최종 처리
+                    try { // 리소스 해제 시퀀스
                         if (connection != null) connection.close();
                     } catch (SQLException e) {
                         if(debugFlag) e.printStackTrace();
@@ -262,60 +270,19 @@ public class ThreadSocketControl {
                 try {
                     clientSocket.close();
                     clientHandlers.remove(this);
-                } catch (IOException e2) {
+                } catch (IOException e2) { // 예외 처리
                     exceptionMSG(e2, "[경고]: 소켓 종료 과정 중 예외 발생");
                 }
             }
         }
 
         public void sendToClient(String message) {
-            // 해당 클라이언트에게 메시지 전송하는 메소드
             clientWriter.println(message);
-        }
-    }
-
-    public static String[] getConfig() {
-
-        // 변수
-        String[] sqlData = new String[4];
-        String s;
-        int i = 0;
-
-        try { // DB 서버 연결 정보를 가진 파일 호출
-            FileReader fileReader = new FileReader("src/main/resources/mysql.txt");
-            BufferedReader br = new BufferedReader(fileReader);
-
-            /* sql 로그인 데이터 처리 */
-            while((s = br.readLine()) != null) { sqlData[i++] = s; }
-
-        } catch (IOException e) { // 예외 처리
-            exceptionMSG(e, "[경고]: 외부 파일 탐색 실패");
-
-            try { // Jar 내에서 파일 읽어오기
-                InputStream inputStream = Main.class.getResourceAsStream("/data/mysql.txt");
-                if(inputStream == null) {
-                    System.out.println("[경고]: Jar 내 파일 탐색 실패");
-                    return null;
-                }
-
-                /* sql 로그인 데이터 처리 */
-                BufferedReader br2 = new BufferedReader(new InputStreamReader(inputStream));
-                while((s = br2.readLine()) != null) { sqlData[i++] = s; }
-                
-            } catch (IOException ex) { // 예외 처리
-                exceptionMSG(ex, "[경고]: Jar 내부 파일 탐색 실패");
-
-                sqlData[0] = System.getenv("MYSQL_HOST_ADDRESS");
-                sqlData[1] = System.getenv("MYSQL_DATABASE_ID");
-                sqlData[2] = System.getenv("MYSQL_DATABASE_PW");
-                sqlData[3] = System.getenv("MYSQL_ADMINISTRATOR");
-            }
-
-        } return sqlData;
+        } // 해당 클라이언트에게 메시지 전송하는 메소드
     }
 
     static void exceptionMSG(IOException e, String msg) {
         if(debugFlag) e.printStackTrace();
         System.out.println(msg);
-    }
+    } // 오류 메세지 & 시스템 창 알림 출력
 }

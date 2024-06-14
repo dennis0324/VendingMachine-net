@@ -25,9 +25,9 @@ public class ChangePassword extends Processing {
         // 변수
         String newPassword = (String)payload.get("password");
 
-        try {
+        try { // 쿼리 실행
             exeQuery(conn, "CALL USER_PASSWORD_CHANGE(?, ?)", sqlData[3], newPassword);
-        } catch (SQLException e) {
+        } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error");
         }

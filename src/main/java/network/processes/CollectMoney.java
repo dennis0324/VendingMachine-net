@@ -29,7 +29,7 @@ public class CollectMoney extends Processing {
         String currVendingID = classification.getValue(2);            // 현재 작업 중인 자판기 ID
         String currTimeStamp = classification.getValue(3);            // 현재 작업 중인 자판기 동작 시간
         String currPayload   = classification.getValue(4);            // 현재 작업 중인 자판기에서 보낸 payload
-        String[] moneyUnit   = {"10", "50", "100", "500", "1000"};          // 화폐 단위
+        String[] moneyUnit   = {"10", "50", "100", "500", "1000"};          // 화폐 단위 배열
 
         int[] result = extractNumbers(currPayload); // string to int array
 

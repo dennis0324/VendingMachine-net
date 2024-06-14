@@ -41,7 +41,7 @@ public class RetrieveMoney extends Processing {
                 remainMoney = rs.getInt("price");
                 TBL_id = rs.getInt("id");
             }
-        } catch (SQLException e) {
+        } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
         }
@@ -56,7 +56,7 @@ public class RetrieveMoney extends Processing {
                 }
                 currMoneyInfo.put(obj); // JSON 배열에 JSON 오브젝트 삽입
             }
-        } catch (SQLException e) {
+        } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
         }
@@ -77,13 +77,11 @@ public class RetrieveMoney extends Processing {
             returnData.put(tmpJson);
         }
 
-        // 계산이 올바른지 확인
-        if (remainMoney != 0) {
+        if (remainMoney != 0) { // 계산이 올바른지 확인
             returnSeq("[에러]: 거스를 화폐가 부족/계산 오류", "deny", new JSONArray());
         }
 
-        // 쿼리에 적용할 value data 작성
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) { // 쿼리에 적용할 value data 작성
             valueData.append(currVendingID).append("|");
             valueData.append(i+1).append("|");
             valueData.append(moneyUnit[i]).append("|");

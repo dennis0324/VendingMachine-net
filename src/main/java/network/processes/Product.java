@@ -28,8 +28,7 @@ public class Product extends Processing {
         PreparedStatement ppst;                         // SQL 처리를 위한 오브젝트
         JSONArray productInfo = new JSONArray();        // JSON 타입 배열
 
-        // 쿼리 준비 및 실행 그리고 결과 가져오기
-        try {
+        try { // 쿼리 준비 및 실행 그리고 결과 가져오기
             ppst = conn.prepareStatement("CALL MACHINE_PRODUCT(?, ?, ?, ?, ?)");
             ppst.setString(1, "GET");
             ppst.setString(2, classification.getValue(2));
@@ -42,8 +41,7 @@ public class Product extends Processing {
             return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
         }
 
-        // 결과 처리
-        while(rs.next()) {
+        while(rs.next()) { // 결과 처리
             JSONObject obj = new JSONObject();
             // 각 행에서 모든 열의 데이터를 가져와서 출력
             for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {

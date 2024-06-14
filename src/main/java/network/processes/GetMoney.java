@@ -27,24 +27,22 @@ public class GetMoney extends Processing {
         ResultSet rs;                                   // SQL 데이터 테이블 결과값의 저장을 위한 변수
         JSONArray moneyInfo = new JSONArray();          // JSON 타입 배열
         boolean type = (boolean)payload.get("all");     // true >>> execute SPE
-        String currVendingID = classification.getValue(2);
-        String currTimeStamp = classification.getValue(3);
-
-        // 쿼리 준비 및 실행 그리고 결과 가져오기
-        try {
-            if (type) {
+        String currVendingID = classification.getValue(2); // 현재 작업 중인 자판기 ID
+        String currTimeStamp = classification.getValue(3); // 입력 작업 중인 자판기 동작 시간
+        
+        try { // 쿼리 준비 및 실행 그리고 결과 가져오기
+            if (type) { // 타입 정보에 따라 알맞는 쿼리 실행
                 rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "SPE", currVendingID, currTimeStamp, "NULL", "NULL");
             } else {
                 rs = exeQuery(conn, "CALL MACHINE_MONEY(?, ?, ?, ?, ?)", "GET", currVendingID, currTimeStamp, "%", "NULL");
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error", new JSONArray());
         }
 
-        // 결과 처리
-        while(rs.next()) {
+        while(rs.next()) { // 결과 처리
             JSONObject obj = new JSONObject();
             // 각 행에서 모든 열의 데이터를 가져와서 출력
             for(int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {

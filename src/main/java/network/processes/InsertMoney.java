@@ -40,10 +40,10 @@ public class InsertMoney extends Processing {
 
         try { // 쿼리 실행
             exeQuery(conn, "CALL MACHINE_MONEY_INSERT(?, ?)", currVendingID, String.valueOf(concatMoney));
-        } catch (SQLException e) {
+        } catch (SQLException e) { // 예외 처리
             e.printStackTrace();
             return returnSeq("[에러]: 쿼리 실행 실패", "error");
-        } // 오류 처리
+        }
 
         return returnSeq("[알림]: 처리 중", "success"); // 결과 처리
     }

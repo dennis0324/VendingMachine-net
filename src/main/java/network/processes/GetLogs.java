@@ -25,9 +25,9 @@ public class GetLogs extends Processing {
         // 변수
         ResultSet rs;                                             // SQL 작업을 위한 데이터 테이블 변수
         JSONArray resultData  = new JSONArray();                  // 로그 저장용 Json ArrayID
-        String[] list = {"year", "month", "day", "limit"};        //
-        String[] currPayload = new String[list.length];           //
-        String currVendingID  = classification.getValue(2); // 현재 동작중인 자판기
+        String[] list = {"year", "month", "day", "limit"};        // 시간 정보 데이터 배열
+        String[] currPayload = new String[list.length];           // 현재 payload 정보
+        String currVendingID  = classification.getValue(2); // 현재 작업 중인 자판기 ID
 
         for(int i = 0; i < list.length; i++) {
             currPayload[i] = String.valueOf(payload.get(list[i]));

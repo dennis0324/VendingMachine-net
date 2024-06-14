@@ -24,10 +24,10 @@ public class Handshake extends Processing {
         System.out.println("[알림]: CMD 코드 - handshake");
 
         // 변수
-        String newVendingID = String.valueOf(classification.getValue(4));
-        String dummyData = String.valueOf(classification.getValue(2));
+        String newVendingID = String.valueOf(classification.getValue(4)); // 현재 작업 중인 자판기 ID
+        String oldVendingID = String.valueOf(classification.getValue(2)); // 현재 작업 중인 자판기가 보유 중인 ID
 
-        if (Objects.equals(dummyData, "")) return returnSeq("[알림]: 클라이언트 재연결 감지", "deny", "");
+        if (!Objects.equals(oldVendingID, "")) return returnSeq("[알림]: 클라이언트 재연결 감지", "deny", "");
 
         try { // 쿼리 실행 - 기존의 번호를 사용하던 기기의 DB 내역 삭제
             exeQuery(conn, "CALL MACHINE_REMOVE(?)", newVendingID);
