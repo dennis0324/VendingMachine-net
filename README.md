@@ -58,12 +58,11 @@ ENTRYPOINT [ "java", "-jar", "/server.jar" ]    #예시) jar 파일 실행
 ```
 
  ## 구동
-docker-compose.yaml 파일 위치로 이동 후, 아래의 명령어를 통해 자판기를 위한 백엔드 & DB 서버 실행
-```
+``` bash
+cd VendingMachine-net
+# 백엔드 & DB 서버 실행
 docker-compose up -d
-```
-만일 서버를 끌 경우,
-```
+# 서버 종료
 docker-compose down
 ```
  ## 코드
